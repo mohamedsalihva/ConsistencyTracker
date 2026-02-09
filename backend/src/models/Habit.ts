@@ -34,7 +34,7 @@ const HabitSchema: Schema<IHabit> = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model<IHabit>("Habit", HabitSchema);
