@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Habit } from './habit.schema';
@@ -29,12 +29,12 @@ export class HabitsService {
 
     async markComplete(habitId: string, userId: string){
         const habit = await this.habitModel.findOne({_id: habitId,userId});
-        if(!habit)throw new Error('habit not found');
+        if(!habit)throw new NotFoundException('habit not found');
 
         const today= new Date().toISOString().split('T')[0];
 
         const todayEntry = habit.history.find(entry=> entry.date === today);
-        if(todayEntry) throw new Error ('habit already marked as complete for today');
+        if(todayEntry) throw new BadRequestException('habit already marked as complete for today');
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() -1);

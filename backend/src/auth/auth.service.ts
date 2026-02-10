@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { UsersService } from 'src/users/users.service';
@@ -9,7 +9,7 @@ export class AuthService {
 
     async register(name: string, email: string, password: string){
         const existingUser = await this.userService.findByEmail(email);
-        if(existingUser) throw new Error('User already exists');
+        if(existingUser) throw new BadRequestException('User already exists');
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await this.userService.create({name,email,password: hashedPassword});
@@ -18,10 +18,10 @@ export class AuthService {
 
     async login(email:string, password:string){
         const user = await this.userService.findByEmail(email);
-        if(!user) throw new Error('Invalid credentials');
+        if(!user) throw new UnauthorizedException('Invalid credentials');
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        if(!isPasswordValid) throw new Error('Invalid credentials');
+        if(!isPasswordValid) throw new UnauthorizedException('Invalid credentials');
 
         const token = jwt.sign(
             {id: user._id,}, 

@@ -1,19 +1,21 @@
 import { Controller,Post,Body,Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService : AuthService){}
 
     @Post('register')
-    register(@Body() body: any){
-        const {name,email,password} = body;
+    register(@Body() dto:RegisterDto){
+        const {name,email,password} = dto;
         return this.authService.register(name,email,password);
     }
 
     @Post('login')
-    async login(@Body() body:any, @Res({passthrough:true}) res:any){
-        const {email,password} = body;
+    async login(@Body() dto:LoginDto, @Res({passthrough:true}) res:any){
+        const {email,password} = dto;
         const data = await this.authService.login(email,password);
 
         res.cookies('token', data.token, {
