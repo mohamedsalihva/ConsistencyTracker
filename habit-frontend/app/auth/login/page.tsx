@@ -21,6 +21,7 @@ export default function LoginPage() {
         email,
         password,
       });
+      
       //save user to redux
       dispatch(setUser(res.data.user));
 
