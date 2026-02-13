@@ -1,13 +1,22 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-interface Habit {
+export type HabitHistory = {
+  date: string;
+  completed: boolean;
+};
+
+export type Habit = {
   _id: string;
   title: string;
-}
+  streak?: number;
+  history?: HabitHistory[];
+  createdAt?: string;
+  updatedAt?: string;
+};
 
-interface HabitState {
+type HabitState = {
   list: Habit[];
-}
+};
 
 const initialState: HabitState = {
   list: [],
