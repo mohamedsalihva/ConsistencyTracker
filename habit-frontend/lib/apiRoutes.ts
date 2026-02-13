@@ -7,9 +7,9 @@ const API = {
   },
 
   HABITS: {
-    CREATE: "/habits",
+    CREATE: "/habits/create",
     GET_ALL: "/habits",
-    COMPLETE: (id: string) => `/habits/${id}/complete`,
+    COMPLETE: (id: string) => `/habits/complete/${id}`,
     STATS: (id: string) => `/habits/${id}/stats`,
   },
 };

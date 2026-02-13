@@ -7,11 +7,11 @@ export default function Home() {
       <p className="text-gray-500 mb-6">Build discipline. Track habits.</p>
 
       <div className="flex gap-4">
-        <Link href="/login">
+        <Link href="auth/login">
           <button className="border px-6 py-2 rounded">Login</button>
         </Link>
 
-        <Link href="/signup">
+        <Link href="auth/signup">
           <button className="bg-black text-white px-6 py-2 rounded">
             Signup
           </button>
