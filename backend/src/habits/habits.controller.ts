@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Body, Param, Req, UseGuards } from '@nestjs/common';
 import { HabitsService } from './habits.service';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateHabitDto } from './dto/create-habit.dto';
 
 @Controller('habits')
 @UseGuards(AuthGuard('jwt'))
@@ -8,8 +9,8 @@ export class HabitsController {
     constructor(private habitService: HabitsService){}
 
     @Post('create')
-    createHabit(@Req() req, @Body('title') title: string){
-        return this.habitService.createHabit(req.user.id,title);
+    createHabit(@Req() req, @Body() dto: CreateHabitDto){
+        return this.habitService.createHabit(req.user.id,dto.title);
     }
     
   @Get()
@@ -22,3 +23,4 @@ export class HabitsController {
     return this.habitService.markComplete(id, req.user.id);
   }
 }
+
