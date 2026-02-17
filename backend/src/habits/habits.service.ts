@@ -14,15 +14,15 @@ export class HabitsService {
     async createHabit(userId: string, title: string){
         return this.habitModel.create({
             userId,
-            title,
+           title: title.trim(),
             history: [],
             streak: 0,
         });
     }
 
 
-    async getHabit(userId: string){
-        return this.habitModel.find({ userId });
+    async getHabits(userId: string){
+       return this.habitModel.find({ userId }).sort({ createdAt: -1 });
     }
 
 

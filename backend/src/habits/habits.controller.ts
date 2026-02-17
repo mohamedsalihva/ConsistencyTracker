@@ -6,21 +6,20 @@ import { CreateHabitDto } from './dto/create-habit.dto';
 @Controller('habits')
 @UseGuards(AuthGuard('jwt'))
 export class HabitsController {
-    constructor(private habitService: HabitsService){}
+  constructor(private readonly habitsService: HabitsService) {}
 
-    @Post('create')
-    createHabit(@Req() req, @Body() dto: CreateHabitDto){
-        return this.habitService.createHabit(req.user.id,dto.title);
-    }
-    
+  @Post()
+  createHabit(@Req() req, @Body() dto: CreateHabitDto) {
+    return this.habitsService.createHabit(req.user.id, dto.title);
+  }
+
   @Get()
-  get(@Req() req) {
-    return this.habitService.getHabit(req.user.id);
+  getHabits(@Req() req) {
+    return this.habitsService.getHabits(req.user.id);
   }
 
   @Post('complete/:id')
   complete(@Req() req, @Param('id') id: string) {
-    return this.habitService.markComplete(id, req.user.id);
+    return this.habitsService.markComplete(id, req.user.id);
   }
 }
-
