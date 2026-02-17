@@ -30,7 +30,7 @@ const habitSlice = createSlice({
       state.list = action.payload;
     },
     addHabit: (state, action: PayloadAction<Habit>) => {
-      state.list.push(action.payload);
+      state.list.unshift(action.payload);
     },
   },
 });
