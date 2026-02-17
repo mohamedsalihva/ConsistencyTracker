@@ -1,19 +1,19 @@
-import { T } from "../utils/theme";
-
-type KpiGridProps = {
+﻿type KpiGridProps = {
   habitsCount: number;
   todayCount: number;
   maxStreak: number;
   totalDone: number;
 };
 
+type CardTone = "lav" | "pink" | "mint" | "peach";
+
 export function KpiGrid({ habitsCount, todayCount, maxStreak, totalDone }: KpiGridProps) {
   return (
-    <section className="kpi-grid reveal" style={{ marginTop: 16, ["--d" as string]: "220ms" }}>
-      <Card label="Total Habits" value={habitsCount} sub="being tracked" bar={`linear-gradient(90deg,${T.lavender},${T.lavL})`} tint="linear-gradient(145deg,#fffaff,#f1e9ff)" />
-      <Card label="Done Today" value={todayCount} sub={`of ${habitsCount} habits`} bar={`linear-gradient(90deg,${T.pink},${T.pinkL})`} tint="linear-gradient(145deg,#fff9fb,#ffeaf1)" />
-      <Card label="Best Streak" value={maxStreak} sub="consecutive days" bar={`linear-gradient(90deg,${T.mint},${T.mintL})`} tint="linear-gradient(145deg,#f7fffd,#e6f8f3)" />
-      <Card label="All-Time Done" value={totalDone} sub="total completions" bar={`linear-gradient(90deg,${T.peach},${T.peachL})`} tint="linear-gradient(145deg,#fffaf5,#fff0e4)" />
+    <section className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <Card label="Total Habits" value={habitsCount} sub="being tracked" tone="lav" />
+      <Card label="Done Today" value={todayCount} sub={`of ${habitsCount} habits`} tone="pink" />
+      <Card label="Best Streak" value={maxStreak} sub="consecutive days" tone="mint" />
+      <Card label="All-Time Done" value={totalDone} sub="total completions" tone="peach" />
     </section>
   );
 }
@@ -22,33 +22,38 @@ function Card({
   label,
   value,
   sub,
-  bar,
-  tint,
+  tone,
 }: {
   label: string;
   value: string | number;
   sub: string;
-  bar: string;
-  tint: string;
+  tone: CardTone;
 }) {
+  const toneClasses = {
+    lav: {
+      card: "from-[#fffaff] to-[#f1e9ff]",
+      bar: "from-[#b8a9d9] to-[#ede8f7]",
+    },
+    pink: {
+      card: "from-[#fff9fb] to-[#ffeaf1]",
+      bar: "from-[#f4a7b9] to-[#fde8ed]",
+    },
+    mint: {
+      card: "from-[#f7fffd] to-[#e6f8f3]",
+      bar: "from-[#90cfc0] to-[#ddf2ed]",
+    },
+    peach: {
+      card: "from-[#fffaf5] to-[#fff0e4]",
+      bar: "from-[#f7c5a0] to-[#fef0e6]",
+    },
+  }[tone];
+
   return (
-    <div
-      className="kpi-card"
-      style={{
-        background: tint,
-        border: `1px solid ${T.border}`,
-        borderRadius: 14,
-        padding: "18px 18px 16px",
-        position: "relative",
-        boxShadow: "0 8px 24px rgba(141,116,184,.12)",
-      }}
-    >
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, borderRadius: "14px 14px 0 0", background: bar }} />
-      <p style={{ marginTop: 6, fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: T.text3 }}>{label}</p>
-      <p className="kpi-value" style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.1rem", lineHeight: 1.1, color: T.text, marginTop: 6 }}>
-        {value}
-      </p>
-      <p style={{ fontSize: 11, color: T.text3 }}>{sub}</p>
+    <div className={`relative rounded-2xl border border-[#e5dcf2] bg-gradient-to-br ${toneClasses.card} px-4 pb-4 pt-5 shadow-[0_8px_24px_rgba(141,116,184,.12)]`}>
+      <div className={`absolute left-0 right-0 top-0 h-[3px] rounded-t-2xl bg-gradient-to-r ${toneClasses.bar}`} />
+      <p className="mt-1 text-[11px] uppercase tracking-[.1em] text-[#a09990]">{label}</p>
+      <p className="mt-1 font-serif text-4xl leading-none text-[#2d2a26]">{value}</p>
+      <p className="mt-1 text-xs text-[#a09990]">{sub}</p>
     </div>
   );
 }

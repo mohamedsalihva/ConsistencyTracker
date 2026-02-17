@@ -1,4 +1,4 @@
-import type { Habit } from "@/store/habitSlice";
+﻿import type { Habit } from "@/store/habitSlice";
 import { DAYS, PALETTE } from "./theme";
 import { formatDay, getLast } from "./date";
 
@@ -63,4 +63,5 @@ export function buildDashboardView(habits: Habit[], chartMode: "14d" | "7d") {
 
   return { today, todayKey, map, last35, last7, todayCount, todayPct, totalDone, activeDays, maxStreak, weekPct, monthPct, allPct, chartData, maxBar, topHabits };
 }
+
 

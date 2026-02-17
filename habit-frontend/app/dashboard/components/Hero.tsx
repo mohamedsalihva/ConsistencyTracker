@@ -1,4 +1,4 @@
-import { MONTHS, MONTHS_S, T } from "../utils/theme";
+﻿import { MONTHS, MONTHS_S } from "../utils/theme";
 
 type HeroProps = {
   today: Date;
@@ -6,24 +6,26 @@ type HeroProps = {
   todayPct: number;
   maxStreak: number;
   activeDays: number;
-  cardStyle: React.CSSProperties;
 };
 
-export function Hero({ today, habitsCount, todayPct, maxStreak, activeDays, cardStyle }: HeroProps) {
+export function Hero({ today, habitsCount, todayPct, maxStreak, activeDays }: HeroProps) {
   return (
-    <section className="hero-card reveal" style={{ ...cardStyle, background: `linear-gradient(135deg,${T.lavL},${T.pinkL})`, padding: "28px 28px", ["--d" as string]: "90ms" }}>
-      <p style={{ fontSize: 11, letterSpacing: ".12em", color: T.lavD, textTransform: "uppercase" }}>Habit Tracker</p>
-      <h1 className="month-gradient" style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2.2rem,5vw,3.7rem)", lineHeight: 1.02, marginTop: 6 }}>
+    <section className="rounded-2xl border border-[#e5dcf2] bg-gradient-to-br from-[#ede8f7] to-[#fde8ed] p-5 shadow-[0_10px_30px_rgba(130,102,176,.14)] sm:p-7">
+      <p className="text-[11px] uppercase tracking-[0.12em] text-[#8b77c2]">Habit Tracker</p>
+      <h1
+        className="mt-1 bg-gradient-to-r from-[#7f63b7] via-[#e87797] to-[#5ca8dc] bg-clip-text font-serif text-4xl leading-none text-transparent sm:text-5xl lg:text-6xl"
+      >
         {MONTHS[today.getMonth()]}
       </h1>
-      <p style={{ color: T.text2, fontSize: 13, marginTop: 8 }}>
+      <p className="mt-2 text-sm text-[#6b6560]">
         {String(today.getDate()).padStart(2, "0")} {MONTHS_S[today.getMonth()]} {today.getFullYear()} · {habitsCount} habits
       </p>
-      <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-        <span style={{ background: T.lavL, color: T.lavD, border: `1px solid ${T.lavender}`, borderRadius: 999, padding: "4px 10px", fontSize: 11 }}>{todayPct}% today</span>
-        <span style={{ background: T.peachL, color: T.peachD, border: `1px solid ${T.peach}`, borderRadius: 999, padding: "4px 10px", fontSize: 11 }}>{maxStreak}d streak</span>
-        <span style={{ background: T.mintL, color: T.mintD, border: `1px solid ${T.mint}`, borderRadius: 999, padding: "4px 10px", fontSize: 11 }}>{activeDays} active days</span>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="rounded-full border border-[#b8a9d9] bg-[#ede8f7] px-2.5 py-1 text-xs text-[#8b77c2]">{todayPct}% today</span>
+        <span className="rounded-full border border-[#f7c5a0] bg-[#fef0e6] px-2.5 py-1 text-xs text-[#e8925a]">{maxStreak}d streak</span>
+        <span className="rounded-full border border-[#90cfc0] bg-[#ddf2ed] px-2.5 py-1 text-xs text-[#4db6a0]">{activeDays} active days</span>
       </div>
     </section>
   );
 }
+

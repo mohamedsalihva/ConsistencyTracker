@@ -1,7 +1,5 @@
-"use client";
+﻿"use client";
 
-import type { CSSProperties } from "react";
-import { DASHBOARD_STYLES, T } from "./utils/theme";
 import { useDashboard } from "./hooks/useDashboard";
 import { Hero } from "./components/Hero";
 import { DailyChart } from "./components/DailyChart";
@@ -29,102 +27,69 @@ export default function DashboardPage() {
     openCreateModal,
     closeCreateModal,
     handleCreateHabit,
+    completeToday,
   } = useDashboard();
-
-  const card: CSSProperties = {
-    background: "linear-gradient(145deg, rgba(255,255,255,.96), rgba(247,240,255,.92))",
-    border: `1px solid ${T.border}`,
-    borderRadius: 14,
-    boxShadow: "0 10px 30px rgba(130,102,176,.14)",
-  };
 
   return (
     <div
+      className="min-h-screen text-[#2d2a26]"
       style={{
-        background: "radial-gradient(circle at 8% 4%, #ffe8f2 0%, transparent 35%), radial-gradient(circle at 92% 0%, #e5efff 0%, transparent 34%), linear-gradient(180deg, #f3edfb 0%, #f7f2ff 100%)",
-        color: T.text,
-        minHeight: "100vh",
-        fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+        background:
+          "radial-gradient(circle at 8% 4%, #ffe8f2 0%, transparent 35%), radial-gradient(circle at 92% 0%, #e5efff 0%, transparent 34%), linear-gradient(180deg, #f3edfb 0%, #f7f2ff 100%)",
       }}
     >
-      <style>{DASHBOARD_STYLES}</style>
+      <div className="mx-auto max-w-[1560px] px-3 pb-8 pt-4 sm:px-5 sm:pb-12 sm:pt-6 lg:px-7 lg:pb-16 lg:pt-8">
+        <nav className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e5dcf2] bg-gradient-to-br from-white to-[#f7efff] px-4 py-3 shadow-[0_10px_30px_rgba(130,102,176,.14)]">
+          <div className="font-serif text-xl sm:text-2xl">Habit Tracker</div>
 
-      <div className="page-wrap">
-        <nav className="topbar reveal" style={{ ...card, background: "linear-gradient(135deg,#ffffff,#f7efff)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", marginBottom: 20, ["--d" as string]: "0ms" }}>
-          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22 }}>Habit Tracker</div>
-          <div className="topnav" style={{ display: "flex", gap: 6 }}>
-            {["Overview", "Habits", "Analytics"].map((t, i) => (
-              <button key={t} style={{ borderRadius: 999, border: `1px solid ${i === 0 ? T.lavender : T.border}`, background: i === 0 ? T.lavL : "transparent", color: i === 0 ? T.lavD : T.text2, padding: "6px 12px", fontSize: 12 }}>
-                {t}
+          <div className="hidden gap-2 sm:flex">
+            {["Overview", "Habits", "Analytics"].map((tab, i) => (
+              <button
+                key={tab}
+                className={`rounded-full border px-3 py-1.5 text-xs ${
+                  i === 0
+                    ? "border-[#b8a9d9] bg-[#ede8f7] text-[#8b77c2]"
+                    : "border-[#e5dcf2] bg-transparent text-[#6b6560]"
+                }`}
+              >
+                {tab}
               </button>
             ))}
           </div>
+
           <button
             onClick={openCreateModal}
-            style={{
-              background: `linear-gradient(135deg,${T.lavender},${T.pink})`,
-              color: "#fff",
-              borderRadius: 999,
-              padding: "8px 14px",
-              fontSize: 13,
-              fontWeight: 600,
-              border: "none",
-              cursor: "pointer",
-            }}
+            className="rounded-full border-0 bg-[linear-gradient(135deg,#b8a9d9,#f4a7b9)] px-4 py-2 text-sm font-semibold text-white"
           >
             + New Habit
           </button>
         </nav>
 
-        <div className="hero">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
           <Hero
             today={view.today}
             habitsCount={habits.length}
             todayPct={view.todayPct}
             maxStreak={view.maxStreak}
             activeDays={view.activeDays}
-            cardStyle={card}
           />
-          <DailyChart
-            chartMode={chartMode}
-            setChartMode={setChartMode}
-            chartData={view.chartData}
-            maxBar={view.maxBar}
-            cardStyle={card}
-          />
+          <DailyChart chartMode={chartMode} setChartMode={setChartMode} chartData={view.chartData} maxBar={view.maxBar} />
         </div>
 
-        <KpiGrid
-          habitsCount={habits.length}
-          todayCount={view.todayCount}
-          maxStreak={view.maxStreak}
-          totalDone={view.totalDone}
-        />
+        <KpiGrid habitsCount={habits.length} todayCount={view.todayCount} maxStreak={view.maxStreak} totalDone={view.totalDone} />
 
-        <div className="mid-grid reveal" style={{ marginTop: 16, ["--d" as string]: "300ms" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <RingSection
-              todayPct={view.todayPct}
-              weekPct={view.weekPct}
-              monthPct={view.monthPct}
-              allPct={view.allPct}
-              cardStyle={card}
-            />
-            <Matrix habits={habits} last35={view.last35} todayKey={view.todayKey} cardStyle={card} />
+        <div className="mt-4 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="flex flex-col gap-4">
+            <RingSection todayPct={view.todayPct} weekPct={view.weekPct} monthPct={view.monthPct} allPct={view.allPct} />
+            <Matrix habits={habits} last35={view.last35} todayKey={view.todayKey} completedToday={completeToday} />
           </div>
-          <TopHabits topHabits={view.topHabits} cardStyle={card} />
+          <TopHabits topHabits={view.topHabits} />
         </div>
 
-        <WeekStrip
-          last7={view.last7}
-          map={view.map}
-          habitsCount={habits.length}
-          todayKey={view.todayKey}
-          cardStyle={card}
-        />
+        <WeekStrip last7={view.last7} map={view.map} habitsCount={habits.length} todayKey={view.todayKey} />
 
-        {loading && <p style={{ marginTop: 18, color: T.text3 }}>Loading habits...</p>}
-        {error && <p style={{ marginTop: 18, color: T.pinkD }}>{error}</p>}
+        {loading && <p className="mt-4 text-sm text-[#a09990]">Loading habits...</p>}
+        {error && <p className="mt-4 text-sm text-[#e8798f]">{error}</p>}
       </div>
 
       <CreateHabitModal

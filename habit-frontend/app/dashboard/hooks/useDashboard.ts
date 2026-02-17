@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AxiosError } from "axios";
 import API from "@/lib/apiRoutes";
 import api from "@/lib/axios";
 import type { AppDispatch, RootState } from "@/store";
-import { addHabit, setHabits, type Habit } from "@/store/habitSlice";
+import { addHabit, setHabits, updateHabit, type Habit } from "@/store/habitSlice";
 import { buildDashboardView } from "../utils/analytics";
 
 export function useDashboard() {
@@ -72,6 +72,16 @@ export function useDashboard() {
     }
   };
 
+  const completeToday = async (habitId: string) => {
+    try {
+      const res = await api.post<Habit>(API.HABITS.COMPLETE(habitId));
+      dispatch(updateHabit(res.data));
+    } catch (err: unknown) {
+      const e = err as AxiosError<{ message?: string }>;
+      setError(e.response?.data?.message ?? "Failed to mark habit as complete.");
+    }
+  };
+
   return {
     habits,
     loading,
@@ -88,6 +98,7 @@ export function useDashboard() {
     openCreateModal,
     closeCreateModal,
     handleCreateHabit,
+    completeToday,
   };
 }
 

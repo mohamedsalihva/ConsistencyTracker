@@ -1,32 +1,31 @@
-import type { Habit } from "@/store/habitSlice";
-import { PALETTE, T } from "../utils/theme";
+﻿import type { Habit } from "@/store/habitSlice";
+import { PALETTE } from "../utils/theme";
 
 type TopHabit = Habit & { pct: number; streak: number };
 
 type TopHabitsProps = {
   topHabits: TopHabit[];
-  cardStyle: React.CSSProperties;
 };
 
-export function TopHabits({ topHabits, cardStyle }: TopHabitsProps) {
+export function TopHabits({ topHabits }: TopHabitsProps) {
   return (
-    <aside style={{ ...cardStyle, background: "linear-gradient(135deg,#fffafd,#eaf5ff)", borderColor: "#d6e6f8", overflow: "hidden", alignSelf: "start" }}>
-      <div className="section-pad" style={{ padding: "16px 18px", borderBottom: `1px solid ${T.border}` }}>
-        <p style={{ fontSize: 14, fontWeight: 700 }}>Top Habits</p>
-        <p style={{ fontSize: 11, color: T.text3 }}>ranked by completion rate</p>
+    <aside className="self-start overflow-hidden rounded-2xl border border-[#d6e6f8] bg-gradient-to-br from-[#fffafd] to-[#eaf5ff] shadow-[0_10px_30px_rgba(130,102,176,.14)]">
+      <div className="border-b border-[#e5dcf2] px-4 py-4">
+        <p className="text-sm font-bold">Top Habits</p>
+        <p className="text-xs text-[#a09990]">ranked by completion rate</p>
       </div>
-      {topHabits.map((h, r) => {
-        const col = PALETTE[r % PALETTE.length];
+
+      {topHabits.map((habit, idx) => {
+        const col = PALETTE[idx % PALETTE.length];
         return (
-          <div key={h._id} className="top-row" style={{ display: "flex", alignItems: "center", gap: 8, padding: "11px 18px", borderBottom: `1px solid ${T.border}` }}>
-            <span style={{ fontSize: 10, color: T.text3, width: 16 }}>{String(r + 1).padStart(2, "0")}</span>
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: col.dot }} />
-            <span style={{ flex: 1, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{h.title}</span>
-            <span style={{ fontSize: 11, color: col.text }}>{h.pct}%</span>
+          <div key={habit._id} className="flex items-center gap-2 border-b border-[#e5dcf2] px-4 py-3 last:border-b-0 hover:bg-[#f4eefc]">
+            <span className="w-4 text-[10px] text-[#a09990]">{String(idx + 1).padStart(2, "0")}</span>
+            <span className={`h-2 w-2 rounded-full ${col.dotClass}`} />
+            <span className="flex-1 truncate text-xs">{habit.title}</span>
+            <span className={`text-xs ${col.textClass}`}>{habit.pct}%</span>
           </div>
         );
       })}
     </aside>
   );
 }
-

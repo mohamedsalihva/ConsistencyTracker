@@ -1,6 +1,4 @@
-import { T } from "../utils/theme";
-
-type CreateHabitModalProps = {
+﻿type CreateHabitModalProps = {
   show: boolean;
   onClose: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -26,89 +24,46 @@ export function CreateHabitModal({
   if (!show) return null;
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(39,28,62,.42)",
-        backdropFilter: "blur(4px)",
-        display: "grid",
-        placeItems: "center",
-        zIndex: 1000,
-        padding: 12,
-      }}
-    >
+    <div onClick={onClose} className="fixed inset-0 z-[1000] grid place-items-center bg-[rgba(39,28,62,.42)] p-3 backdrop-blur-sm">
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{
-          width: "100%",
-          maxWidth: 460,
-          borderRadius: 16,
-          border: `1px solid ${T.border}`,
-          background: "linear-gradient(145deg,#fffafd,#f2ebff)",
-          boxShadow: "0 24px 55px rgba(111,85,158,.28)",
-          padding: 20,
-        }}
+        className="w-full max-w-[460px] rounded-2xl border border-[#e5dcf2] bg-gradient-to-br from-[#fffafd] to-[#f2ebff] p-5 shadow-[0_24px_55px_rgba(111,85,158,.28)]"
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <h3 style={{ margin: 0, fontFamily: "'Playfair Display', serif", fontSize: 30, lineHeight: 1.1 }}>Create Habit</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{ border: `1px solid ${T.border}`, background: "#fff", borderRadius: 8, padding: "4px 9px", cursor: "pointer" }}
-          >
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="font-serif text-3xl leading-none">Create Habit</h3>
+          <button type="button" onClick={onClose} className="rounded-md border border-[#e5dcf2] bg-white px-2 py-1 text-sm">
             x
           </button>
         </div>
 
-        <p style={{ margin: "0 0 6px", fontSize: 12, color: T.text3 }}>You can create up to 5 habits.</p>
-        <p style={{ margin: "0 0 14px", fontSize: 12, color: currentHabitsCount >= 5 ? T.pinkD : T.mintD }}>
-          Current: {currentHabitsCount}/5
-        </p>
-        <p style={{ margin: "0 0 14px", fontSize: 12, color: T.text2 }}>
-          You can add {remainingSlots} more habit(s).
-        </p>
+        <p className="mb-1 text-xs text-[#a09990]">You can create up to 5 habits.</p>
+        <p className={`mb-1 text-xs ${currentHabitsCount >= 5 ? "text-[#e8798f]" : "text-[#4db6a0]"}`}>Current: {currentHabitsCount}/5</p>
+        <p className="mb-3 text-xs text-[#6b6560]">You can add {remainingSlots} more habit(s).</p>
 
         <form onSubmit={onSubmit}>
-          <div style={{ display: "grid", gap: 8 }}>
+          <div className="grid gap-2">
             {titles.map((title, idx) => {
               const isLast = idx === titles.length - 1;
               const canAdd = isLast && titles.length < remainingSlots && titles.length < 5;
               const canRemove = titles.length > 1;
+
               return (
-                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 8 }}>
+                <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-2">
                   <input
                     value={title}
                     onChange={(e) => setTitles((prev) => prev.map((v, i) => (i === idx ? e.target.value : v)))}
                     placeholder={`Habit ${idx + 1}`}
                     maxLength={100}
                     disabled={creatingHabit}
-                    style={{
-                      width: "100%",
-                      borderRadius: 12,
-                      border: `1px solid ${T.border}`,
-                      background: "#fff",
-                      color: T.text,
-                      padding: "12px 14px",
-                      outline: "none",
-                    }}
+                    className="w-full rounded-xl border border-[#e5dcf2] bg-white px-3 py-2.5 text-sm text-[#2d2a26] outline-none"
                   />
 
                   <button
                     type="button"
                     disabled={!canAdd || creatingHabit}
                     onClick={() => setTitles((prev) => [...prev, ""])}
-                    style={{
-                      width: 40,
-                      borderRadius: 10,
-                      border: `1px solid ${T.border}`,
-                      background: canAdd ? "#f4edff" : "#f8f8f8",
-                      color: canAdd ? T.lavD : "#b7b2aa",
-                      fontSize: 20,
-                      lineHeight: 1,
-                      cursor: canAdd ? "pointer" : "not-allowed",
-                    }}
+                    className="h-10 w-10 rounded-lg border border-[#e5dcf2] text-xl leading-none disabled:cursor-not-allowed disabled:text-[#b7b2aa]"
+                    style={{ background: canAdd ? "#f4edff" : "#f8f8f8", color: canAdd ? "#8b77c2" : "#b7b2aa" }}
                   >
                     +
                   </button>
@@ -117,16 +72,8 @@ export function CreateHabitModal({
                     type="button"
                     disabled={!canRemove || creatingHabit}
                     onClick={() => setTitles((prev) => prev.filter((_, i) => i !== idx))}
-                    style={{
-                      width: 40,
-                      borderRadius: 10,
-                      border: `1px solid ${T.border}`,
-                      background: canRemove ? "#fff0f4" : "#f8f8f8",
-                      color: canRemove ? T.pinkD : "#b7b2aa",
-                      fontSize: 18,
-                      lineHeight: 1,
-                      cursor: canRemove ? "pointer" : "not-allowed",
-                    }}
+                    className="h-10 w-10 rounded-lg border border-[#e5dcf2] text-lg leading-none disabled:cursor-not-allowed disabled:text-[#b7b2aa]"
+                    style={{ background: canRemove ? "#fff0f4" : "#f8f8f8", color: canRemove ? "#e8798f" : "#b7b2aa" }}
                   >
                     -
                   </button>
@@ -135,33 +82,17 @@ export function CreateHabitModal({
             })}
           </div>
 
-          {createError && (
-            <p style={{ marginTop: 10, marginBottom: 0, fontSize: 12, color: T.pinkD }}>
-              {createError}
-            </p>
-          )}
+          {createError && <p className="mt-2 text-xs text-[#e8798f]">{createError}</p>}
 
-          <div style={{ marginTop: 14, display: "flex", justifyContent: "flex-end", gap: 8 }}>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{ borderRadius: 999, border: `1px solid ${T.border}`, background: "#fff", color: T.text2, padding: "8px 14px", cursor: "pointer" }}
-            >
+          <div className="mt-3 flex justify-end gap-2">
+            <button type="button" onClick={onClose} className="rounded-full border border-[#e5dcf2] bg-white px-4 py-2 text-sm text-[#6b6560]">
               Cancel
             </button>
             <button
               type="submit"
               disabled={creatingHabit}
-              style={{
-                borderRadius: 999,
-                border: "none",
-                background: `linear-gradient(135deg,${T.lavender},${T.pink})`,
-                color: "#fff",
-                padding: "8px 16px",
-                fontWeight: 600,
-                cursor: creatingHabit ? "not-allowed" : "pointer",
-                opacity: creatingHabit ? 0.6 : 1,
-              }}
+              className="rounded-full border-0 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              style={{ background: "linear-gradient(135deg,#b8a9d9,#f4a7b9)" }}
             >
               {creatingHabit ? "Creating..." : "Create"}
             </button>
@@ -171,3 +102,4 @@ export function CreateHabitModal({
     </div>
   );
 }
+

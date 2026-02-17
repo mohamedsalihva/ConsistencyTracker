@@ -1,4 +1,4 @@
-export function formatDay(d: Date) {
+﻿export function formatDay(d: Date) {
   return d.toISOString().split("T")[0];
 }
 
@@ -9,4 +9,5 @@ export function getLast(days: number) {
     return d;
   });
 }
+
 

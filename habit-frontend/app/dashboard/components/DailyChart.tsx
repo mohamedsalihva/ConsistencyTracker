@@ -1,35 +1,51 @@
-import { T } from "../utils/theme";
-
-type ChartPoint = { label: string; count: number; col: { fill: string } };
+﻿type ChartPoint = { label: string; count: number; col: { fill: string } };
 
 type DailyChartProps = {
   chartMode: "14d" | "7d";
   setChartMode: (mode: "14d" | "7d") => void;
   chartData: ChartPoint[];
   maxBar: number;
-  cardStyle: React.CSSProperties;
 };
 
-export function DailyChart({ chartMode, setChartMode, chartData, maxBar, cardStyle }: DailyChartProps) {
+export function DailyChart({ chartMode, setChartMode, chartData, maxBar }: DailyChartProps) {
   return (
-    <section className="hero-card reveal" style={{ ...cardStyle, background: "linear-gradient(135deg,#ffffff,#e9f4ff)", borderColor: "#cde3f5", padding: "24px 24px", ["--d" as string]: "150ms" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+    <section className="rounded-2xl border border-[#cde3f5] bg-gradient-to-br from-white to-[#e9f4ff] p-5 shadow-[0_10px_30px_rgba(130,102,176,.14)] sm:p-6">
+      <div className="mb-4 flex items-center justify-between gap-2">
         <div>
-          <p style={{ fontWeight: 700, fontSize: 14 }}>Daily Activity</p>
-          <p style={{ color: T.text3, fontSize: 11 }}>completions/day</p>
+          <p className="text-sm font-bold">Daily Activity</p>
+          <p className="text-xs text-[#a09990]">completions/day</p>
         </div>
-        <div style={{ display: "flex", gap: 6 }}>
-          <button onClick={() => setChartMode("14d")} style={{ border: `1px solid ${chartMode === "14d" ? T.lavender : T.border}`, background: chartMode === "14d" ? T.lavL : "transparent", color: chartMode === "14d" ? T.lavD : T.text2, borderRadius: 999, padding: "5px 11px", fontSize: 11 }}>14 days</button>
-          <button onClick={() => setChartMode("7d")} style={{ border: `1px solid ${chartMode === "7d" ? T.lavender : T.border}`, background: chartMode === "7d" ? T.lavL : "transparent", color: chartMode === "7d" ? T.lavD : T.text2, borderRadius: 999, padding: "5px 11px", fontSize: 11 }}>This week</button>
+        <div className="flex gap-1.5">
+          <button
+            onClick={() => setChartMode("14d")}
+            className={`rounded-full border px-2.5 py-1 text-xs ${
+              chartMode === "14d"
+                ? "border-[#b8a9d9] bg-[#ede8f7] text-[#8b77c2]"
+                : "border-[#e5dcf2] bg-transparent text-[#6b6560]"
+            }`}
+          >
+            14 days
+          </button>
+          <button
+            onClick={() => setChartMode("7d")}
+            className={`rounded-full border px-2.5 py-1 text-xs ${
+              chartMode === "7d"
+                ? "border-[#b8a9d9] bg-[#ede8f7] text-[#8b77c2]"
+                : "border-[#e5dcf2] bg-transparent text-[#6b6560]"
+            }`}
+          >
+            This week
+          </button>
         </div>
       </div>
-      <div style={{ display: "flex", alignItems: "end", height: 140, gap: 5 }}>
+
+      <div className="flex h-[140px] items-end gap-1.5">
         {chartData.map((d, i) => {
           const h = Math.max((d.count / maxBar) * 116, d.count ? 8 : 3);
           return (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-              <div style={{ width: "100%", height: h, borderRadius: "6px 6px 0 0", background: d.count ? d.col.fill : T.border }} />
-              <span style={{ fontSize: 9, color: T.text3 }}>{d.label}</span>
+            <div key={i} className="flex flex-1 flex-col items-center gap-1">
+              <div className="w-full rounded-t-md" style={{ height: h, background: d.count ? d.col.fill : "#e5dcf2" }} />
+              <span className="text-[9px] text-[#a09990]">{d.label}</span>
             </div>
           );
         })}
@@ -37,4 +53,3 @@ export function DailyChart({ chartMode, setChartMode, chartData, maxBar, cardSty
     </section>
   );
 }
-
