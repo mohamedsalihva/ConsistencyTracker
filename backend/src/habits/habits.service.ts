@@ -34,7 +34,7 @@ export class HabitsService {
         const today= new Date().toISOString().split('T')[0];
 
         const todayEntry = habit.history.find(entry=> entry.date === today);
-        if(todayEntry) throw new BadRequestException('habit already marked as complete for today');
+        if(todayEntry) throw new BadRequestException('habit already marked  as complete for today');
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() -1);
