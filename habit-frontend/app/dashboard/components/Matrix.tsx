@@ -1,4 +1,6 @@
 ﻿import { useState } from "react";
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 import type { Habit } from "@/store/habitSlice";
 import { habitStreak } from "../utils/analytics";
 import { formatDay } from "../utils/date";
@@ -8,88 +10,123 @@ type MatrixProps = {
   habits: Habit[];
   last35: Date[];
   todayKey: string;
-  completedToday: (habitId: string) => Promise<void>;
+  completedToday: (habitId: string) => void | Promise<void>;
 };
 
 export function Matrix({ habits, last35, todayKey, completedToday }: MatrixProps) {
   const [celebrateId, setCelebrateId] = useState<string | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<string | null>(null);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-[#ddd3f0] bg-gradient-to-br from-[#fffcff] to-[#f0ecfb] shadow-[0_10px_30px_rgba(130,102,176,.14)]">
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4, duration: 0.45 }}
+      className="glass-card overflow-hidden p-6"
+    >
       <style>{`
-        @keyframes confetti {
+        @keyframes confetti-pop {
           from { transform: translateY(0) scale(1); opacity:1; }
-          to { transform: translateY(-12px) scale(.5); opacity:0; }
+          to { transform: translateY(-18px) scale(.3); opacity:0; }
         }
       `}</style>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e5dcf2] px-5 py-4">
+      <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-sm font-bold">35-Day Consistency Matrix</p>
-          <p className="text-xs text-[#a09990]">each square = one day</p>
+          <p className="text-sm font-bold text-foreground">35-Day Consistency Matrix</p>
+          <p className="text-xs text-muted-foreground">click today&apos;s cell to mark complete</p>
+        </div>
+        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2.5 w-2.5 rounded-sm bg-lavender" /> Done
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2.5 w-2.5 rounded-sm bg-border" /> Missed
+          </span>
         </div>
       </div>
 
-      <div className="overflow-x-auto px-5 pb-5 pt-4">
-        <div className="min-w-[860px]">
-          <div className="mb-2 flex gap-[5px] pl-44">
-            {last35.map((d, i) => (
-              <div key={i} className="w-[18px] text-center text-[8px] text-[#a09990]">
-                {d.getDate()}
-              </div>
-            ))}
-          </div>
-
-          {habits.map((habit, rowIdx) => {
-            const col = PALETTE[rowIdx % PALETTE.length];
-            const streak = habitStreak(habit);
-
-            return (
-              <div key={habit._id} className="flex items-center gap-[5px] rounded-lg px-1.5 py-1 hover:bg-[#f4eefc]">
-                <div className="flex w-[170px] items-center gap-2">
-                  <div className={`h-4 w-[3px] rounded-full ${col.dotClass}`} />
-                  <span className="truncate text-xs text-[#6b6560]">{habit.title}</span>
-                </div>
-
-                {last35.map((d, i) => {
-                  const dayKey = formatDay(d);
-                  const isToday = dayKey === todayKey;
-                  const doneToday = !!habit.history?.some((entry) => entry.date === dayKey && entry.completed);
-
-                  return (
-                    <div
-                      key={i}
-                      className={`relative h-[18px] w-[18px] rounded ${
-                        doneToday ? col.fillClass : "bg-[#e5dcf2]"
-                      } ${isToday ? `outline outline-2 ${col.outlineClass}` : ""} ${isToday && !doneToday ? "cursor-pointer" : ""}`}
-                      onClick={() => {
-                        if (!isToday || doneToday) return;
-                        setCelebrateId(habit._id);
-                        void completedToday(habit._id);
-                        setTimeout(() => setCelebrateId(null), 600);
-                      }}
-                      style={{
-                        transition: "transform .15s",
-                        transform: celebrateId === habit._id && isToday ? "scale(1.6)" : "scale(1)",
-                      }}
-                    >
-                      {celebrateId === habit._id && isToday && (
-                        <>
-                          <span className={`absolute left-[4px] top-1/2 h-[6px] w-[6px] -translate-y-1/2 rounded-full ${col.dotClass}`} style={{ animation: "confetti .6s ease forwards" }} />
-                          <span className={`absolute left-[10px] top-1/2 h-[6px] w-[6px] -translate-y-1/2 rounded-full ${col.fillClass}`} style={{ animation: "confetti .6s ease forwards" }} />
-                          <span className="absolute left-[16px] top-1/2 h-[6px] w-[6px] -translate-y-1/2 rounded-full bg-[#f7c5a0]" style={{ animation: "confetti .6s ease forwards" }} />
-                        </>
-                      )}
+      <div className="overflow-x-auto pb-2">
+        <table className="w-full border-collapse" style={{ minWidth: 600 }}>
+          <thead>
+            <tr>
+              <th className="w-[130px]" />
+              {last35.map((d, i) => {
+                const isToday = formatDay(d) === todayKey;
+                return (
+                  <th key={i} className={`px-px text-center text-[8px] font-normal ${isToday ? "font-bold text-primary" : "text-muted-foreground"}`}>
+                    {d.getDate()}
+                  </th>
+                );
+              })}
+              <th className="w-[40px]" />
+            </tr>
+          </thead>
+          <tbody>
+            {habits.map((habit, rowIdx) => {
+              const col = PALETTE[rowIdx % PALETTE.length];
+              const streak = habitStreak(habit);
+              return (
+                <tr key={habit._id} className="group/row">
+                  <td className="py-0.5 pr-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: col.fill }} />
+                      <span className="truncate text-xs font-medium text-foreground">{habit.title}</span>
                     </div>
-                  );
-                })}
+                  </td>
+                  {last35.map((d, i) => {
+                    const dayKey = formatDay(d);
+                    const isToday = dayKey === todayKey;
+                    const done = !!habit.history?.some((e) => e.date === dayKey && e.completed);
+                    const cellKey = `${habit._id}-${i}`;
+                    const isHovered = hoveredCell === cellKey;
 
-                {streak > 0 && <span className="ml-1 text-[10px] text-[#e8925a]">{streak}d</span>}
-              </div>
-            );
-          })}
-        </div>
+                    return (
+                      <td key={i} className="px-px py-0.5">
+                        <motion.div
+                          className={`relative mx-auto flex h-[16px] w-[16px] items-center justify-center rounded-[4px] transition-all duration-150 ${
+                            isToday && !done ? "cursor-pointer ring-2 ring-primary/30 ring-offset-1" : ""
+                          }`}
+                          style={{
+                            background: done ? col.fill : isToday && isHovered ? `${col.fill}40` : "hsl(var(--border))",
+                            opacity: done ? 1 : isToday ? 0.7 : 0.3,
+                          }}
+                          animate={celebrateId === habit._id && isToday ? { scale: [1, 1.6, 1] } : {}}
+                          transition={{ duration: 0.4 }}
+                          onMouseEnter={() => setHoveredCell(cellKey)}
+                          onMouseLeave={() => setHoveredCell(null)}
+                          onClick={() => {
+                            if (!isToday || done) return;
+                            setCelebrateId(habit._id);
+                            void completedToday(habit._id);
+                            setTimeout(() => setCelebrateId(null), 700);
+                          }}
+                        >
+                          {done && <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />}
+                          {celebrateId === habit._id && isToday && (
+                            <>
+                              <span className="absolute -left-1.5 -top-1.5 h-2 w-2 rounded-full bg-peach" style={{ animation: "confetti-pop .6s forwards" }} />
+                              <span className="absolute -right-1.5 -top-1.5 h-2 w-2 rounded-full bg-mint" style={{ animation: "confetti-pop .6s .1s forwards" }} />
+                              <span className="absolute -top-2.5 left-0.5 h-2 w-2 rounded-full bg-rose" style={{ animation: "confetti-pop .6s .2s forwards" }} />
+                              <span className="absolute -bottom-1 left-1 h-1.5 w-1.5 rounded-full bg-sky" style={{ animation: "confetti-pop .6s .15s forwards" }} />
+                            </>
+                          )}
+                          {isToday && !done && isHovered && (
+                            <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-[7px] font-bold" style={{ color: col.fill }}>
+                              +
+                            </motion.span>
+                          )}
+                        </motion.div>
+                      </td>
+                    );
+                  })}
+                  <td className="pl-2">{streak > 0 && <span className="flex items-center gap-0.5 text-[10px] font-semibold text-primary">🔥 {streak}d</span>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-    </section>
+    </motion.section>
   );
 }

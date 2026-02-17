@@ -1,1 +1,66 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
+
+@theme {
+  --color-foreground: #2d2a26;
+  --color-muted-foreground: #8f879f;
+  --color-border: #ddd5ea;
+  --color-card: #fdfaff;
+  --color-secondary: #f3eefb;
+  --color-primary: #8d67c8;
+  --color-primary-foreground: #ffffff;
+  --color-destructive: #e8798f;
+
+  --color-lavender: #8d67c8;
+  --color-lavender-soft: #efe5ff;
+  --color-rose: #d8759f;
+  --color-rose-soft: #ffe9f2;
+  --color-mint: #4db6a0;
+  --color-mint-soft: #ddf4ee;
+  --color-peach: #e49a62;
+  --color-peach-soft: #fff0e4;
+  --color-sky: #6f9ecf;
+}
+
+:root {
+  --gradient-page: radial-gradient(circle at 8% 4%, #ffe8f2 0%, transparent 35%),
+    radial-gradient(circle at 92% 0%, #e5efff 0%, transparent 34%),
+    linear-gradient(180deg, #f3edfb 0%, #f7f2ff 100%);
+  --gradient-cta: linear-gradient(135deg, #8d67c8 0%, #d8759f 100%);
+}
+
+@layer base {
+  body {
+    color: #2d2a26;
+    background: var(--gradient-page);
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply rounded-3xl border border-border/70 bg-card/80 shadow-[0_14px_42px_rgba(140,108,180,.16)] backdrop-blur-xl;
+  }
+
+  .chip {
+    @apply rounded-full border px-3 py-1.5 text-xs font-medium transition-all;
+  }
+
+  .chip-active {
+    @apply border-lavender/30 bg-lavender-soft text-lavender;
+  }
+
+  .chip-inactive {
+    @apply border-border bg-white/60 text-muted-foreground hover:bg-secondary;
+  }
+
+  .btn-cta {
+    background: var(--gradient-cta);
+    @apply rounded-full px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(143,97,190,.34)] transition-all hover:brightness-105;
+  }
+
+  .gradient-text {
+    background: linear-gradient(110deg, #7f63b7 0%, #e87797 45%, #5ca8dc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}

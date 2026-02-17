@@ -1,59 +1,74 @@
-﻿type KpiGridProps = {
+﻿import { motion } from "framer-motion";
+import { Target, CheckCircle, Flame, Trophy } from "lucide-react";
+
+type KpiGridProps = {
   habitsCount: number;
   todayCount: number;
   maxStreak: number;
   totalDone: number;
 };
 
-type CardTone = "lav" | "pink" | "mint" | "peach";
+type CardTone = "lavender" | "rose" | "mint" | "peach";
 
-export function KpiGrid({ habitsCount, todayCount, maxStreak, totalDone }: KpiGridProps) {
+const cards: { label: string; sub: string; tone: CardTone; key: keyof KpiGridProps; icon: React.ReactNode }[] = [
+  { label: "Total Habits", sub: "being tracked", tone: "lavender", key: "habitsCount", icon: <Target className="h-5 w-5" /> },
+  { label: "Done Today", sub: "habits", tone: "rose", key: "todayCount", icon: <CheckCircle className="h-5 w-5" /> },
+  { label: "Best Streak", sub: "consecutive days", tone: "mint", key: "maxStreak", icon: <Flame className="h-5 w-5" /> },
+  { label: "All-Time Done", sub: "total completions", tone: "peach", key: "totalDone", icon: <Trophy className="h-5 w-5" /> },
+];
+
+const toneMap = {
+  lavender: {
+    card: "border-lavender/20 bg-gradient-to-br from-lavender-soft/60 to-lavender-soft",
+    bar: "from-lavender to-lavender/30",
+    icon: "text-lavender bg-lavender/10",
+  },
+  rose: {
+    card: "border-rose/20 bg-gradient-to-br from-rose-soft/60 to-rose-soft",
+    bar: "from-rose to-rose/30",
+    icon: "text-rose bg-rose/10",
+  },
+  mint: {
+    card: "border-mint/20 bg-gradient-to-br from-mint-soft/60 to-mint-soft",
+    bar: "from-mint to-mint/30",
+    icon: "text-mint bg-mint/10",
+  },
+  peach: {
+    card: "border-peach/20 bg-gradient-to-br from-peach-soft/60 to-peach-soft",
+    bar: "from-peach to-peach/30",
+    icon: "text-peach bg-peach/10",
+  },
+};
+
+export function KpiGrid(props: KpiGridProps) {
   return (
-    <section className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      <Card label="Total Habits" value={habitsCount} sub="being tracked" tone="lav" />
-      <Card label="Done Today" value={todayCount} sub={`of ${habitsCount} habits`} tone="pink" />
-      <Card label="Best Streak" value={maxStreak} sub="consecutive days" tone="mint" />
-      <Card label="All-Time Done" value={totalDone} sub="total completions" tone="peach" />
+    <section className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {cards.map((c, i) => {
+        const t = toneMap[c.tone];
+        const val = props[c.key];
+        return (
+          <motion.div
+            key={c.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + i * 0.08, duration: 0.4 }}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className={`group relative cursor-default overflow-hidden rounded-2xl border ${t.card} px-5 pb-5 pt-6 shadow-lg backdrop-blur-xl transition-shadow duration-300 hover:shadow-xl`}
+          >
+            <div className={`absolute left-0 right-0 top-0 h-[3px] bg-gradient-to-r ${t.bar}`} />
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[.12em] text-muted-foreground">{c.label}</p>
+                <motion.p key={String(val)} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mt-1.5 font-serif text-4xl leading-none text-foreground">
+                  {val}
+                </motion.p>
+                <p className="mt-1.5 text-xs text-muted-foreground">{c.key === "todayCount" ? `of ${props.habitsCount} habits` : c.sub}</p>
+              </div>
+              <div className={`rounded-xl p-2.5 ${t.icon} transition-transform duration-300 group-hover:scale-110`}>{c.icon}</div>
+            </div>
+          </motion.div>
+        );
+      })}
     </section>
-  );
-}
-
-function Card({
-  label,
-  value,
-  sub,
-  tone,
-}: {
-  label: string;
-  value: string | number;
-  sub: string;
-  tone: CardTone;
-}) {
-  const toneClasses = {
-    lav: {
-      card: "from-[#fffaff] to-[#f1e9ff]",
-      bar: "from-[#b8a9d9] to-[#ede8f7]",
-    },
-    pink: {
-      card: "from-[#fff9fb] to-[#ffeaf1]",
-      bar: "from-[#f4a7b9] to-[#fde8ed]",
-    },
-    mint: {
-      card: "from-[#f7fffd] to-[#e6f8f3]",
-      bar: "from-[#90cfc0] to-[#ddf2ed]",
-    },
-    peach: {
-      card: "from-[#fffaf5] to-[#fff0e4]",
-      bar: "from-[#f7c5a0] to-[#fef0e6]",
-    },
-  }[tone];
-
-  return (
-    <div className={`relative rounded-2xl border border-[#e5dcf2] bg-gradient-to-br ${toneClasses.card} px-4 pb-4 pt-5 shadow-[0_8px_24px_rgba(141,116,184,.12)]`}>
-      <div className={`absolute left-0 right-0 top-0 h-[3px] rounded-t-2xl bg-gradient-to-r ${toneClasses.bar}`} />
-      <p className="mt-1 text-[11px] uppercase tracking-[.1em] text-[#a09990]">{label}</p>
-      <p className="mt-1 font-serif text-4xl leading-none text-[#2d2a26]">{value}</p>
-      <p className="mt-1 text-xs text-[#a09990]">{sub}</p>
-    </div>
   );
 }
