@@ -48,15 +48,15 @@ export function CreateHabitModal({
               </button>
             </div>
 
-            <p className="mb-1 text-xs text-muted-foreground">You can create up to 5 habits.</p>
-            <p className={`mb-1 text-xs font-medium ${currentHabitsCount >= 5 ? "text-destructive" : "text-mint"}`}>Current: {currentHabitsCount}/5</p>
+            <p className="mb-1 text-xs text-muted-foreground">You can create up to 15 habits.</p>
+            <p className={`mb-1 text-xs font-medium ${currentHabitsCount >= 15 ? "text-destructive" : "text-mint"}`}>Current: {currentHabitsCount}/15</p>
             <p className="mb-4 text-xs text-muted-foreground">You can add {remainingSlots} more habit(s).</p>
 
             <form onSubmit={onSubmit}>
               <div className="grid gap-2.5">
                 {titles.map((title, idx) => {
                   const isLast = idx === titles.length - 1;
-                  const canAdd = isLast && titles.length < remainingSlots && titles.length < 5;
+                  const canAdd = isLast && titles.length < remainingSlots && titles.length < 15;
                   const canRemove = titles.length > 1;
 
                   return (

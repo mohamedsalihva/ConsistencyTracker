@@ -34,7 +34,7 @@ export function useDashboard() {
   }, [dispatch]);
 
   const view = useMemo(() => buildDashboardView(habits, chartMode), [habits, chartMode]);
-  const remainingSlots = Math.max(0, 5 - habits.length);
+  const remainingSlots = Math.max(0, 15 - habits.length);
 
   const openCreateModal = () => {
     setCreateError("");

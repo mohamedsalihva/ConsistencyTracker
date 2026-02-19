@@ -15,7 +15,7 @@ export function TopHabits({ topHabits }: TopHabitsProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45, duration: 0.45 }}
-      className="glass-card p-6"
+      className="glass-card p-6 max-h-[535px] flex flex-col"
     >
       <div className="mb-5 flex items-center gap-2">
         <Medal className="h-4 w-4 text-peach" />
@@ -25,7 +25,7 @@ export function TopHabits({ topHabits }: TopHabitsProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-y-auto no-scrollbar pr-1">
         {topHabits.map((habit, idx) => {
           const col = PALETTE[idx % PALETTE.length];
           const isTop = idx === 0;
