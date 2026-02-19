@@ -11,6 +11,8 @@ const API = {
     GET_ALL: "/habits",
     COMPLETE: (id: string) => `/habits/complete/${id}`,
     STATS: (id: string) => `/habits/${id}/stats`,
+    UPDATE: (id:string) => `/habits/${id}`,
+    DELETE: (id:string) => `/habits/${id}`
   },
 };
 

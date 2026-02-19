@@ -36,6 +36,8 @@ export default function DashboardPage() {
     closeCreateModal,
     handleCreateHabit,
     completeToday,
+    renameHabit,
+    deleteHabit,
   } = useDashboard();
 
   return (
@@ -79,7 +81,8 @@ export default function DashboardPage() {
         <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
           <div className="flex flex-col gap-5">
             <RingSection todayPct={view.todayPct} weekPct={view.weekPct} monthPct={view.monthPct} allPct={view.allPct} />
-            <Matrix habits={habits} last35={view.last35} todayKey={view.todayKey} completedToday={completeToday} />
+            <Matrix habits={habits} last35={view.last35} todayKey={view.todayKey} completedToday={completeToday} 
+            onRenameHabit={renameHabit} onDeleteHabit={deleteHabit}/>
           </div>
           <TopHabits topHabits={view.topHabits} />
         </div>

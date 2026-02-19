@@ -4,7 +4,7 @@ import type { AxiosError } from "axios";
 import API from "@/lib/apiRoutes";
 import api from "@/lib/axios";
 import type { AppDispatch, RootState } from "@/store";
-import { addHabit, setHabits, updateHabit, type Habit } from "@/store/habitSlice";
+import { addHabit, removeHabit, setHabits, updateHabit, type Habit } from "@/store/habitSlice";
 import { buildDashboardView } from "../utils/analytics";
 
 export function useDashboard() {
@@ -82,6 +82,26 @@ export function useDashboard() {
     }
   };
 
+  const renameHabit = async (habitId: string, title: string) =>{
+       try {
+        const res = await api.patch<Habit>(API.HABITS.UPDATE(habitId), { title });
+        dispatch(updateHabit(res.data));
+       } catch (err: unknown) {
+        const e = err as AxiosError<{ message?: string}>;
+        setError(e.response?.data?.message ?? "failed to rename habit")
+       }
+  };
+
+  const deleteHabit = async (habitId: string)=>{
+    try {
+      await api.delete(API.HABITS.DELETE(habitId));
+      dispatch(removeHabit(habitId));
+    } catch (err: unknown) {
+      const e = err as AxiosError<{ message?: string }>;
+      setError(e.response?.data?.message ?? "failed to delete habit");
+    }
+  }
+
   return {
     habits,
     loading,
@@ -93,6 +113,8 @@ export function useDashboard() {
     setNewHabitTitles,
     createError,
     creatingHabit,
+    renameHabit,
+    deleteHabit,
     view,
     remainingSlots,
     openCreateModal,
