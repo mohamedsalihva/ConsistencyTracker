@@ -1,6 +1,7 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 import API from "@/lib/apiRoutes";
 import api from "@/lib/axios";
 import type { AppDispatch, RootState } from "@/store";
@@ -9,6 +10,7 @@ import { buildDashboardView } from "../utils/analytics";
 
 export function useDashboard() {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const habits = useSelector((s: RootState) => s.habits.list);
 
   const [loading, setLoading] = useState(true);
@@ -26,12 +28,16 @@ export function useDashboard() {
         dispatch(setHabits(Array.isArray(res.data) ? res.data : (res.data.habits ?? [])));
       } catch (err: unknown) {
         const e = err as AxiosError<{ message?: string }>;
+        if (e.response?.status === 401) {
+          router.replace("/auth/login");
+          return;
+        }
         setError(e.response?.data?.message ?? "Failed to load habits");
       } finally {
         setLoading(false);
       }
     })();
-  }, [dispatch]);
+  }, [dispatch, router]);
 
   const view = useMemo(() => buildDashboardView(habits, chartMode), [habits, chartMode]);
   const remainingSlots = Math.max(0, 15 - habits.length);
@@ -66,6 +72,11 @@ export function useDashboard() {
       setShowCreateModal(false);
     } catch (err: unknown) {
       const e2 = err as AxiosError<{ message?: string }>;
+      if (e2.response?.status === 401) {
+        setShowCreateModal(false);
+        router.replace("/auth/login");
+        return;
+      }
       setCreateError(e2.response?.data?.message ?? "Failed to create habit.");
     } finally {
       setCreatingHabit(false);
@@ -78,29 +89,41 @@ export function useDashboard() {
       dispatch(updateHabit(res.data));
     } catch (err: unknown) {
       const e = err as AxiosError<{ message?: string }>;
+      if (e.response?.status === 401) {
+        router.replace("/auth/login");
+        return;
+      }
       setError(e.response?.data?.message ?? "Failed to mark habit as complete.");
     }
   };
 
-  const renameHabit = async (habitId: string, title: string) =>{
-       try {
-        const res = await api.patch<Habit>(API.HABITS.UPDATE(habitId), { title });
-        dispatch(updateHabit(res.data));
-       } catch (err: unknown) {
-        const e = err as AxiosError<{ message?: string}>;
-        setError(e.response?.data?.message ?? "failed to rename habit")
-       }
+  const renameHabit = async (habitId: string, title: string) => {
+    try {
+      const res = await api.patch<Habit>(API.HABITS.UPDATE(habitId), { title });
+      dispatch(updateHabit(res.data));
+    } catch (err: unknown) {
+      const e = err as AxiosError<{ message?: string }>;
+      if (e.response?.status === 401) {
+        router.replace("/auth/login");
+        return;
+      }
+      setError(e.response?.data?.message ?? "failed to rename habit");
+    }
   };
 
-  const deleteHabit = async (habitId: string)=>{
+  const deleteHabit = async (habitId: string) => {
     try {
       await api.delete(API.HABITS.DELETE(habitId));
       dispatch(removeHabit(habitId));
     } catch (err: unknown) {
       const e = err as AxiosError<{ message?: string }>;
+      if (e.response?.status === 401) {
+        router.replace("/auth/login");
+        return;
+      }
       setError(e.response?.data?.message ?? "failed to delete habit");
     }
-  }
+  };
 
   return {
     habits,
@@ -123,4 +146,3 @@ export function useDashboard() {
     completeToday,
   };
 }
-
