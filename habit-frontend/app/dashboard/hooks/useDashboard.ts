@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
 import API from "@/lib/apiRoutes";
 import api from "@/lib/axios";
 import type { AppDispatch, RootState } from "@/store";
 import { addHabit, removeHabit, setHabits, updateHabit, type Habit } from "@/store/habitSlice";
+import type { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { buildDashboardView } from "../utils/analytics";
 
 export function useDashboard() {
@@ -125,6 +125,20 @@ export function useDashboard() {
     }
   };
 
+  const toggleCheckin = async(habitId: string, date: string, completed: boolean) => {
+    try {
+      const res = await api.patch<Habit>(API.HABITS.CHECKIN(habitId), {date, completed});
+      dispatch(updateHabit(res.data));
+    } catch (err: unknown) {
+      const e = err as AxiosError<{message?: string}>;
+      if(e.response?.status === 401){
+        router.replace("/auth/login");
+        return;
+      }
+      setError(e.response?.data?.message ?? "failed to update check-in");
+    }
+  };
+
   return {
     habits,
     loading,
@@ -144,5 +158,6 @@ export function useDashboard() {
     closeCreateModal,
     handleCreateHabit,
     completeToday,
+    toggleCheckin,
   };
 }

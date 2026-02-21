@@ -10,6 +10,7 @@ const API = {
     CREATE: "/habits",
     GET_ALL: "/habits",
     COMPLETE: (id: string) => `/habits/complete/${id}`,
+    CHECKIN: (id:string) =>  `/habits/${id}/checkin`,
     STATS: (id: string) => `/habits/${id}/stats`,
     UPDATE: (id:string) => `/habits/${id}`,
     DELETE: (id:string) => `/habits/${id}`

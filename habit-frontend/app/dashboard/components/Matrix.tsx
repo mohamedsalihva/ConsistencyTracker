@@ -11,6 +11,11 @@ type MatrixProps = {
   last35: Date[];
   todayKey: string;
   completedToday: (habitId: string) => void | Promise<void>;
+  onToggleCheckin: (
+    habitId: string,
+    date: string,
+    completed: boolean,
+  ) => void | Promise<void>;
   onRenameHabit: (habitId: string, title: string) => void | Promise<void>;
   onDeleteHabit: (habitId: string) => void | Promise<void>;
 };
@@ -22,9 +27,13 @@ export function Matrix({
   completedToday,
   onDeleteHabit,
   onRenameHabit,
+  onToggleCheckin,
 }: MatrixProps) {
   const [celebrateId, setCelebrateId] = useState<string | null>(null);
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
+  const yesterdayDate = new Date(`${todayKey}T00:00:00.000Z`);
+  yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1);
+  const yesterdayKey = yesterdayDate.toISOString().split("T")[0];
 
   return (
     <motion.section
@@ -46,7 +55,7 @@ export function Matrix({
             35-Day Consistency Matrix
           </p>
           <p className="text-xs text-muted-foreground">
-            click today&apos;s cell to mark complete
+            click today or yesterday to toggle check-in
           </p>
         </div>
         <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
@@ -133,6 +142,7 @@ export function Matrix({
                   {last35.map((d, i) => {
                     const dayKey = formatDay(d);
                     const isToday = dayKey === todayKey;
+                    const isEditable = dayKey === todayKey || dayKey === yesterdayKey;
                     const done = !!habit.history?.some(
                       (e) => e.date === dayKey && e.completed,
                     );
@@ -143,17 +153,17 @@ export function Matrix({
                       <td key={i} className="px-px py-0.5">
                         <motion.div
                           className={`relative mx-auto flex h-[16px] w-[16px] items-center justify-center rounded-[4px] transition-all duration-150 ${
-                            isToday && !done
+                            isEditable
                               ? "cursor-pointer ring-2 ring-primary/30 ring-offset-1"
                               : ""
                           }`}
                           style={{
                             background: done
                               ? col.fill
-                              : isToday && isHovered
+                              : isEditable && isHovered
                                 ? `${col.fill}40`
                                 : "hsl(var(--border))",
-                            opacity: done ? 1 : isToday ? 0.7 : 0.3,
+                            opacity: done ? 1 : isEditable ? 0.7 : 0.3,
                           }}
                           animate={
                             celebrateId === habit._id && isToday
@@ -164,10 +174,16 @@ export function Matrix({
                           onMouseEnter={() => setHoveredCell(cellKey)}
                           onMouseLeave={() => setHoveredCell(null)}
                           onClick={() => {
-                            if (!isToday || done) return;
-                            setCelebrateId(habit._id);
-                            void completedToday(habit._id);
-                            setTimeout(() => setCelebrateId(null), 700);
+                            if (!isEditable) return;
+
+                            if (isToday && !done) {
+                              setCelebrateId(habit._id);
+                              void completedToday(habit._id);
+                              setTimeout(() => setCelebrateId(null), 700);
+                              return;
+                            }
+
+                            void onToggleCheckin(habit._id, dayKey, !done);
                           }}
                         >
                           {done && (
@@ -204,7 +220,7 @@ export function Matrix({
                               />
                             </>
                           )}
-                          {isToday && !done && isHovered && (
+                          {isEditable && !done && isHovered && (
                             <motion.span
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
