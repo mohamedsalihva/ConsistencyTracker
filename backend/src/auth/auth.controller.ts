@@ -1,7 +1,8 @@
-import { Controller,Post,Body,Res } from '@nestjs/common';
+import { Controller,Post,Body,Res,Get,Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -27,4 +28,22 @@ export class AuthController {
 
     return { success: true, user: data.user };
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  async me(@Req() req: any){
+    const user = await this.authService.me(req.user.id);
+    return {user};
+  }
+
+  @Post('logout')
+  logout(@Res({passthrough: true}) res: any){
+    res.clearCookie('token',{
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false,
+    });
+    return {success: true};
+  }
+
 }

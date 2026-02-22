@@ -7,13 +7,19 @@ import { UsersService } from 'src/users/users.service';
 export class AuthService {
     constructor(private userService: UsersService){}
 
+    private toSafeUser(user: any){
+        const obj = typeof user?.toObject === 'function' ? user.toObject() : user;
+        const {password, ...safeUser} = obj;
+        return safeUser;
+    }
+
     async register(name: string, email: string, password: string){
         const existingUser = await this.userService.findByEmail(email);
         if(existingUser) throw new BadRequestException('User already exists');
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await this.userService.create({name,email,password: hashedPassword});
-        return user;
+        return {user: this.toSafeUser(user)};
     }
 
     async login(email:string, password:string){
@@ -28,6 +34,12 @@ export class AuthService {
             process.env.JWT_SECRET!,
              {expiresIn: '7d'},
             );
-        return {user, token};
+        return {user: this.toSafeUser(user), token};
     };
+
+    async me(userId: string){
+        const user = await this.userService.findById(userId);
+        if(!user) throw new UnauthorizedException('invalid token');
+        return this.toSafeUser(user);
+    }
 }
