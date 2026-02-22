@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { buildDashboardView } from "../utils/analytics";
+import { logout as logoutAction } from "@/store/authSlice";
 
 export function useDashboard() {
   const dispatch = useDispatch<AppDispatch>();
@@ -139,6 +140,18 @@ export function useDashboard() {
     }
   };
 
+  const signOut = async ()=>{
+    try {
+      await api.post(API.AUTH.LOGOUT);
+    } catch (error) {
+      console.log(error);
+    }finally{
+      dispatch(logoutAction());
+      dispatch(setHabits([]));
+      router.replace("/");
+    }
+  };
+
   return {
     habits,
     loading,
@@ -159,5 +172,6 @@ export function useDashboard() {
     handleCreateHabit,
     completeToday,
     toggleCheckin,
+    signOut
   };
 }
