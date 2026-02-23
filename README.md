@@ -262,24 +262,7 @@ UI behavior requirements:
 5. `updateHabit` dispatch
 6. KPIs/charts/matrix/ranks re-render from same store source
 
-## 9. Environment Variables
 
-### Backend (`backend/.env`)
-
-```env
-PORT=5000
-MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/habit-tracker
-JWT_SECRET=your_super_secret_key
-JWT_EXPIRES_IN=7d
-FRONTEND_URL=http://localhost:3000
-NODE_ENV=development
-```
-
-### Frontend (`habit-frontend/.env.local`)
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-```
 
 ## 10. API Contract Examples
 
