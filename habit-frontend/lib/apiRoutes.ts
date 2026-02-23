@@ -15,6 +15,11 @@ const API = {
     UPDATE: (id:string) => `/habits/${id}`,
     DELETE: (id:string) => `/habits/${id}`
   },
+  
+  AI: {
+  CHAT: "/ai/chat",
+},
+
 };
 
 export default API;

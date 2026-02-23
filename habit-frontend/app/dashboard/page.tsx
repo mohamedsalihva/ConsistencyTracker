@@ -14,6 +14,8 @@ import { Matrix } from "./components/Matrix";
 import { TopHabits } from "./components/TopHabits";
 import { WeekStrip } from "./components/WeekStrip";
 import { CreateHabitModal } from "./components/CreateHabitModal";
+import { CoachChat } from "./components/CoachChat";
+
 
 const navTabs = [
   { label: "Overview", icon: <LayoutDashboard className="h-3.5 w-3.5" /> },
@@ -202,6 +204,10 @@ export default function DashboardPage() {
         </div>
 
         <WeekStrip last7={view.last7} map={view.map} habitsCount={habits.length} todayKey={view.todayKey} />
+        <CoachChat
+  context={`todayPct=${view.todayPct}, habits=${habits.length}, maxStreak=${view.maxStreak}, activeDays=${view.activeDays}, totalDone=${view.totalDone}`}
+/>
+
 
         {loading && <p className="mt-4 text-sm text-muted-foreground">Loading habits...</p>}
         {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
