@@ -1,225 +1,292 @@
-# Habit Tracker SaaS (Production Blueprint)
+# Habit Tracker (Learning + Production-Style Monorepo)
 
-A full-stack Habit / Consistency Tracker SaaS with colorful animated analytics, JWT cookie auth, streak logic, and a modular production architecture.
+Full-stack habit tracker built with NestJS + Next.js.
+This README reflects the current implementation in this repository.
 
-This README is the implementation contract for the system.
+## What Is Implemented So Far
 
-## 1. Product Scope
+- Auth with JWT cookie flow (backend + frontend credentials flow).
+- Frontend route protection with Next.js middleware:
+  - unauthenticated users are redirected from `/dashboard` to `/auth/login`
+  - authenticated users are redirected away from `/auth/login` and `/auth/register` to `/dashboard`
+- Habit CRUD core:
+  - Create habit
+  - Get all habits
+  - Mark habit complete for today
+  - Check-in toggle for today or yesterday
+  - Rename habit
+  - Delete habit
+- Habit creation limit: `15` habits per user.
+- Duplicate title guard on rename (case-insensitive, per user).
+- Dashboard analytics UI:
+  - 35-day matrix
+  - daily chart
+  - KPI cards
+  - ring summaries
+  - week strip
+  - top habits ranking
+- Top habits card supports internal scrolling without pushing layout.
+- Frontend state via Redux Toolkit (`auth`, `habits`, `chat`).
+- AI Habit Coach chatbot:
+  - JWT-protected backend route `POST /ai/chat`
+  - Gemini provider integration (`@google/genai`)
+  - AI is grounded with real habit data from MongoDB (per user)
+  - backend builds context (pending today, missed yesterday, weak habits, progress %)
+  - floating chat widget on dashboard
+  - frontend anti-spam guard (loading lock + cooldown on `429`)
+  - sends only last 20 messages per request
+  - response style constrained to plain text in 3 lines (Insight / Action today / Follow-up)
+- Backend throttling via `@nestjs/throttler` (`3` requests per `60` seconds globally).
 
-Users can:
-
-- Sign up / login
-- Create up to 5 habits
-- Mark habits complete daily
-- Maintain streaks
-- View a 35-day consistency matrix
-- View daily activity bars
-- View weekly strip
-- View KPI cards
-- View completion rings
-- View top habits ranking
-- Use animated dashboard UI
-- Use mobile FAB (+) for quick add
-- See toast notifications
-- See confetti on completion
-
-## 2. Tech Stack
-
-### Frontend
-
-- Next.js 14 App Router
-- React + TypeScript
-- Tailwind CSS
-- Redux Toolkit
-- Axios
-- Framer Motion
-- Lucide Icons
+## Tech Stack
 
 ### Backend
 
 - NestJS
-- MongoDB Atlas
-- Mongoose
+- Mongoose + MongoDB
 - Passport JWT
-- bcrypt
+- class-validator + class-transformer
+- @google/genai (Gemini API)
+- @nestjs/throttler
 
-### Auth
+### Frontend
 
-- JWT stored in HTTP-only cookies
-- No localStorage token auth
+- Next.js (App Router)
+- React + TypeScript
+- Tailwind CSS
+- Redux Toolkit + React Redux
+- Axios
+- Framer Motion
+- Lucide icons
 
-## 3. Monorepo Structure
+## Monorepo Structure
 
 ```text
 habit-tracker/
   backend/
     src/
-      modules/
-        auth/
-        users/
-        habits/
+      auth/
+      users/
+      habits/
+        dto/
+        habit.schema.ts
+        habits.controller.ts
+        habits.service.ts
+      ai/
+        dto/
+          chat.dto.ts
+        ai.controller.ts
+        ai.service.ts
+        ai.module.ts
+      app.module.ts
       main.ts
-    .env
     package.json
   habit-frontend/
-    src/
-      app/
-        dashboard/page.tsx
-        auth/login/page.tsx
-      components/
-        dashboard/
-          Hero.tsx
-          Matrix.tsx
-          DailyChart.tsx
-          KpiGrid.tsx
-          RingSection.tsx
-          TopHabits.tsx
-          WeekStrip.tsx
-          CreateHabitModal.tsx
-      hooks/
-        useDashboard.ts
-      store/
-        habitSlice.ts
-      lib/
-        api.ts
-        axios.ts
-      utils/
-        analytics.ts
-        date.ts
-        theme.ts
-    .env.local
+    middleware.ts
+    app/
+      auth/
+        login/
+          page.tsx
+        register/
+          page.tsx
+      dashboard/
+        components/
+          CoachChat.tsx
+        hooks/
+        utils/
+        page.tsx
+    lib/
+      apiRoutes.ts
+      axios.ts
+    store/
+      authSlice.ts
+      habitSlice.ts
+      chatSlice.ts
+      index.ts
     package.json
+  README.md
 ```
 
-Note:
+## API Endpoints (Current)
 
-- In your current repo, dashboard files may live under `habit-frontend/app/dashboard/*`.
-- Keep module boundaries strict even if paths differ slightly.
+Auth:
 
-## 4. Backend Architecture (NestJS)
+- `POST /auth/register` -> create user
+- `POST /auth/login` -> validate user and set `token` HTTP-only cookie
+- `GET /auth/me` -> get current logged-in user (JWT required)
+- `POST /auth/logout` -> clear auth cookie
 
-### Modules
+Base: `/habits` (JWT guard protected)
 
-- `src/modules/auth`
-- `src/modules/users`
-- `src/modules/habits`
+- `POST /habits` -> create habit
+- `GET /habits` -> get all current user habits
+- `POST /habits/complete/:id` -> mark today complete
+- `PATCH /habits/:id/checkin` -> toggle check-in for a specific date (`today`/`yesterday`)
+- `PATCH /habits/:id` -> rename habit title
+- `DELETE /habits/:id` -> delete habit
 
-### Habit Schema
+Base: `/ai` (JWT guard protected)
 
-```ts
-{
-  _id: ObjectId,
-  userId: ObjectId,
-  title: string,
-  history: [{ date: "YYYY-MM-DD", completed: boolean }],
-  streak: number,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
+- `POST /ai/chat` -> chat with AI Habit Coach
 
-### API Routes
+## Backend Business Rules
 
-- `POST /auth/register`
-- `POST /auth/login`
-- `POST /habits`
-- `GET /habits`
-- `POST /habits/complete/:id`
+- Max habits per user: `15`
+- Complete only once per day for one habit
+- Streak logic:
+  - if yesterday completed -> streak + 1
+  - otherwise -> streak = 1
+- Rename guard:
+  - reject if another habit for same user has same title (case-insensitive)
+- Date check-in guard:
+  - user can edit only `today` or `yesterday`
+- All `/habits` and `/ai/chat` endpoints require valid JWT (`AuthGuard('jwt')`)
+- AI chat DTO guards:
+  - `messages` array required (`1..20`)
+  - message `role` must be `user` or `assistant`
+  - message `content` max `2000`
+  - optional `context` max `1000`
+- Gemini provider quota/rate-limit errors are surfaced as `429` for frontend handling.
+- AI context is built server-side from user habits in MongoDB before calling Gemini.
 
-### Business Rules
+## Auth and Route Protection Flow
 
-- Max 5 habits per user
-- Only one completion per habit per day
-- On completion:
-  - add today history entry
-  - if yesterday completed => streak +1
-  - if yesterday missed => streak = 1
-- Habit not found / unauthorized habit => 404
-- Duplicate same-day completion => 400
+### Server/API protection (required)
 
-## 5. JWT Cookie Auth (Required)
+- Backend protects habit and AI routes with `@UseGuards(AuthGuard('jwt'))`.
+- If user is not logged in, protected API requests return `401 Unauthorized`.
 
-### Register/Login flow
+### Frontend route protection (UX + access control)
 
-1. Validate payload
-2. Hash password (register) with bcrypt
-3. Create/verify user
-4. Sign JWT
-5. Set HTTP-only cookie in response
+- `habit-frontend/middleware.ts` checks `token` cookie on route entry.
+- `/dashboard` without token -> redirect to `/auth/login?next=/dashboard`.
+- `/auth/login` or `/auth/register` with token -> redirect to `/dashboard`.
 
-### Cookie settings (prod)
+### Dashboard runtime fallback
 
-- `httpOnly: true`
-- `secure: true` (production HTTPS)
-- `sameSite: "none"` for cross-domain FE/BE deployments (or `"lax"` for same-site)
-- `path: "/"`
-- reasonable maxAge/expiry
+- `useDashboard` handles `401` responses from habit actions.
+- On `401`, user is redirected to `/auth/login`.
 
-Frontend must send credentials:
+### Post-login redirect
 
-```ts
-axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,
-});
-```
+- Login page reads `next` query param.
+- After successful login:
+  - if `next` exists and starts with `/`, redirect there
+  - otherwise redirect to `/dashboard`
 
-## 6. Frontend Architecture
+## Frontend Data Flow (End to End)
 
-### Redux (`habits.list[]`)
+### 1) Load dashboard
 
-`habitSlice` actions:
+1. Dashboard mounts.
+2. `useDashboard` calls `GET /habits`.
+3. Result dispatches `setHabits`.
+4. `buildDashboardView(...)` derives analytics.
+5. Components render from Redux store.
+
+### 2) Create habit
+
+1. Open `CreateHabitModal`.
+2. Validate titles and remaining slots.
+3. Call `POST /habits` for each title.
+4. Dispatch `addHabit` for each created item.
+5. Analytics/UI refresh.
+
+### 3) Complete / check-in / rename / delete
+
+1. User action in matrix.
+2. Frontend calls corresponding habit endpoint.
+3. Dispatches `updateHabit` or `removeHabit`.
+4. UI + analytics recalculate.
+
+### 4) AI coach chat
+
+1. User opens floating `CoachChat` widget.
+2. User message is pushed to Redux `chatSlice`.
+3. Frontend posts to `POST /ai/chat` with `messages` + optional context.
+4. Backend fetches user habits from MongoDB and builds AI context.
+5. Backend sends grounded prompt to Gemini and returns `{ reply }`.
+6. Frontend appends assistant message.
+7. On `429`, frontend enters temporary cooldown.
+
+## Key Functions by Layer
+
+### Backend service functions
+
+- Habit service:
+  - `createHabit(userId, title)`
+  - `getHabits(userId)`
+  - `markComplete(habitId, userId)`
+  - `checkinHabit(habitId, userId, date, completed)`
+  - `renameHabit(habitId, userId, title)`
+  - `deleteHabit(habitId, userId)`
+- AI service:
+  - `chat(userId, messages, context?)`
+  - internal context builder from DB (`buildHabitContext`)
+
+### Frontend hook/functions
+
+- `useDashboard`:
+  - `handleCreateHabit(...)`
+  - `completeToday(habitId)`
+  - `toggleCheckin(habitId, date, completed)`
+  - `renameHabit(habitId, title)`
+  - `deleteHabit(habitId)`
+- `CoachChat`:
+  - sends chat request
+  - handles `loading`, `error`, `429` cooldown
+
+### Redux reducers
+
+`habitSlice`
 
 - `setHabits`
 - `addHabit`
 - `updateHabit`
+- `removeHabit`
 
-### `useDashboard` Hook Responsibilities
+`chatSlice`
 
-- fetch habits
-- create habits (1..remaining slots)
-- complete habit
-- hold modal state
-- hold chart mode state
-- compute and expose dashboard analytics data
-- expose handler props for all UI components
+- `addMessage`
+- `setLoading`
+- `setChatError`
+- `clearChat`
 
-Rule:
+## Run Commands
 
-- Keep business/data orchestration in hook.
-- Keep rendering and interactions in components.
+## Backend
 
-### Analytics Pure Function
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-`buildDashboardView(habits, chartMode)` returns:
+Useful backend commands:
 
-- `todayPct`
-- `weekPct`
-- `monthPct`
-- `allPct`
-- `chartData`
-- `last35`
-- `last7`
-- `topHabits`
-- `completionMap`
-- `maxStreak`
-- `activeDays`
+```bash
+npm run build
+npm run test
+npm run test:watch
+npm run lint
+```
 
-No side effects. Pure deterministic function.
+## Frontend
 
-## 7. Dashboard Components
+```bash
+cd habit-frontend
+npm install
+npm run dev
+```
 
-Required components:
+Useful frontend commands:
 
-- `Hero`
-- `Matrix`
-- `DailyChart`
-- `KpiGrid`
-- `RingSection`
-- `TopHabits`
-- `WeekStrip`
-- `CreateHabitModal`
+```bash
+npm run build
+npm run lint
+```
 
+<<<<<<< HEAD
 UI behavior requirements:
 
 - pastel gradients
@@ -264,107 +331,36 @@ UI behavior requirements:
 
 
 
-## 10. API Contract Examples
+## Environment Variables
 
-### Register
+### Backend (`backend/.env`)
 
-`POST /auth/register`
-
-```json
-{ "name": "Salih", "email": "salih@mail.com", "password": "StrongPass123!" }
+```env
+PORT=5000
+MONGO_URI=...
+JWT_SECRET=...
+FRONTEND_URL=http://localhost:3000
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-2.5-flash
+NODE_ENV=development
 ```
 
-### Login
+### Frontend (`habit-frontend/.env.local`)
 
-`POST /auth/login`
-
-```json
-{ "email": "salih@mail.com", "password": "StrongPass123!" }
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
+ e6ad8f7 (schem afor worksapce added)
 
-### Create Habit
+Note: current `habit-frontend/lib/axios.ts` uses a hardcoded base URL (`http://localhost:5000/`).
 
-`POST /habits`
+## Current Notes / Cleanup
 
-```json
-{ "title": "Read 20 pages" }
-```
+- DTO class is currently named `updateHabitDto`; preferred TypeScript convention is `UpdateHabitDto`.
+- Add/expand tests for rename/delete and duplicate checks.
+- Optionally add duplicate-title guard to `createHabit` as well (rename already guarded).
+- AI is currently stateless per request (no persistent chat history in DB yet).
+- Consider persistent chat history in MongoDB for long-term AI conversations.
+- Keep API keys secret and rotate immediately if exposed.
 
-### Complete Habit
-
-`POST /habits/complete/:id`
-
-Response returns updated habit:
-
-```json
-{
-  "_id": "habitId",
-  "title": "Read 20 pages",
-  "streak": 4,
-  "history": [{ "date": "2026-02-17", "completed": true }]
-}
-```
-
-## 11. Tailwind + UI Notes
-
-- Keep design tokens centralized in `globals.css` + optional `tailwind.config`.
-- Reuse utility classes like:
-  - `glass-card`
-  - `chip`, `chip-active`, `chip-inactive`
-  - `btn-cta`
-  - `gradient-text`
-
-This keeps components maintainable while preserving visual consistency.
-
-## 12. Deployment Notes
-
-### Backend
-
-- Deploy on Render/Railway/Fly.io
-- Use managed MongoDB Atlas
-- Set CORS with exact frontend origin
-- Set secure cookie options in production
-
-### Frontend
-
-- Deploy on Vercel
-- `NEXT_PUBLIC_API_URL` -> deployed backend URL
-- Ensure backend CORS + cookie policy allow frontend domain
-
-### Cross-domain cookie checklist
-
-- HTTPS on both frontend/backend
-- `sameSite: "none"` + `secure: true` on backend cookie
-- `withCredentials: true` in axios
-
-## 13. Run Locally
-
-### Backend
-
-```bash
-cd backend
-npm install
-npm run start:dev
-```
-
-### Frontend
-
-```bash
-cd habit-frontend
-npm install
-npm run dev
-```
-
-## 14. Acceptance Checklist
-
-- [ ] User can register/login with HTTP-only cookie auth
-- [ ] No localStorage token auth
-- [ ] User cannot exceed 5 habits
-- [ ] One completion per habit per day enforced
-- [ ] Streak increments/resets correctly
-- [ ] Dashboard renders all required analytics sections
-- [ ] Matrix today cell click completes habit
-- [ ] Confetti + toasts visible on completion
-- [ ] Mobile FAB visible and functional
-- [ ] No mock data in production path
 
