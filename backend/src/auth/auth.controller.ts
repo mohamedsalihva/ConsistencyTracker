@@ -10,8 +10,8 @@ export class AuthController {
 
     @Post('register')
     register(@Body() dto:RegisterDto){
-        const {name,email,password} = dto;
-        return this.authService.register(name,email,password);
+        const {name,email,password, accountType,workspaceName,inviteCode} = dto;
+        return this.authService.register(name,email,password,accountType,workspaceName,inviteCode);
     }
 
     @Post('login')

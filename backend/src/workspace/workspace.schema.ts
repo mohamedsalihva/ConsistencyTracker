@@ -2,7 +2,7 @@ import { Prop,Schema,SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 
 @Schema({ timestamps: true})
-export class workspace {
+export class Workspace {
     @Prop({required: true})
     name: string;
 
@@ -19,4 +19,4 @@ export class workspace {
     memberLabel: string;
 }
 
-export const WorkspaceSchema = SchemaFactory.createForClass(workspace);
+export const WorkspaceSchema = SchemaFactory.createForClass(Workspace);

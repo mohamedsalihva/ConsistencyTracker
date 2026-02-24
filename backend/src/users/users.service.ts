@@ -18,4 +18,8 @@ export class UsersService {
     create(data: any){
         return this.userModel.create(data);
     }
+
+    updateById(id: string, data: any){
+        return this.userModel.findByIdAndUpdate(id,data,{new:true});
+    }
 }

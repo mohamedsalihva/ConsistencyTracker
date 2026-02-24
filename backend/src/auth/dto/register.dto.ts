@@ -1,4 +1,4 @@
-import { IsEmail,IsString, MinLength, } from "class-validator";
+import { IsEmail,IsString, MinLength,IsIn, IsOptional } from "class-validator";
 
 export class RegisterDto {
     @IsString()
@@ -11,4 +11,15 @@ export class RegisterDto {
     @IsString()
     @MinLength(6)
     password: string;
+    
+    @IsIn(['manager','member'])
+    accountType: 'manager' | 'member';
+
+    @IsOptional()
+    @IsString()
+    workspaceName?: string;
+
+    @IsOptional()
+    @IsString()
+    inviteCode?:string;
 }
