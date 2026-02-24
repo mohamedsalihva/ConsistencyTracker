@@ -35,7 +35,7 @@ export default function RegisterPage() {
     try {
       const res = await api.post(API.AUTH.REGISTER, formData);
 
-      // save user in redux
+      // save user in  reduxx
       dispatch(setUser(res.data.user));
 
       router.push("/auth/login");
