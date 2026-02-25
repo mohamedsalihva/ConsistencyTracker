@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { Subscription } from 'rxjs';
 import { UsersService } from 'src/users/users.service';
 import { WorkspacesService } from 'src/workspace/workspaces.services';
 
@@ -74,12 +73,17 @@ export class AuthService {
       return { user: this.toSafeUser(updatedManager), workspace };
     }
 
-    if (!inviteCode?.trim()) {
-      throw new BadRequestException('inviteCode is required for member signup');
-    }
+    let workspace: Awaited<ReturnType<WorkspacesService['findByInviteCode']>> | null = null;
+    let workspaceId: string | null = null;
+    let managerId: string | null = null;
 
-    const workspace = await this.workspaceService.findByInviteCode(inviteCode);
-    if (!workspace) throw new BadRequestException('Invalid invite code');
+    if (inviteCode?.trim()) {
+      workspace = await this.workspaceService.findByInviteCode(inviteCode);
+      if (!workspace) throw new BadRequestException('Invalid invite code');
+
+      workspaceId = workspace._id.toString();
+      managerId = workspace.ownerId.toString();
+    }
 
     const member = await this.userService.create({
       name,
@@ -87,8 +91,8 @@ export class AuthService {
       password: hashedPassword,
       role: 'member',
       subscriptionStatus: 'none',
-      workspaceId: workspace._id,
-      managerId: workspace.ownerId,
+      workspaceId,
+      managerId,
     });
 
 

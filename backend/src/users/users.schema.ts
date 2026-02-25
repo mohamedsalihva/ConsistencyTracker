@@ -19,7 +19,7 @@ export class User{
 
     @Prop({type:String, enum: ['manager', 'member'], default: 'member'}) role: UserRole;
     
-    @Prop({ type: String, enum:['none','pending','active','failed'],default: 'none'})SubscriptionStatus: SubscriptionStatus;
+    @Prop({ type: String, enum:['none','pending','active','failed'],default: 'none'})subscriptionStatus: SubscriptionStatus;
 
     @Prop ({type: mongoose.Schema.Types.ObjectId, ref:'workspace', default: null})workspaceId?: string | null;
     
