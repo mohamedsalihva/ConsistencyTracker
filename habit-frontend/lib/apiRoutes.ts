@@ -10,16 +10,18 @@ const API = {
     CREATE: "/habits",
     GET_ALL: "/habits",
     COMPLETE: (id: string) => `/habits/complete/${id}`,
-    CHECKIN: (id:string) =>  `/habits/${id}/checkin`,
+    CHECKIN: (id: string) => `/habits/${id}/checkin`,
     STATS: (id: string) => `/habits/${id}/stats`,
-    UPDATE: (id:string) => `/habits/${id}`,
-    DELETE: (id:string) => `/habits/${id}`
+    UPDATE: (id: string) => `/habits/${id}`,
+    DELETE: (id: string) => `/habits/${id}`,
   },
-  
-  AI: {
-  CHAT: "/ai/chat",
-},
 
+  AI: {
+    CHAT: "/ai/chat",
+  },
+  WORKSPACE: {
+    MY_INVITE: "/workspace/my-invite",
+  },
 };
 
 export default API;

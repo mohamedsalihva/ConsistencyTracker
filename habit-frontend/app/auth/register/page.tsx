@@ -5,42 +5,94 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import type { AxiosError } from "axios";
 
 import { setUser } from "@/store/authSlice";
 import api from "@/lib/axios";
 import API from "@/lib/apiRoutes";
 
+type RegisterForm = {
+  name: string;
+  email: string;
+  password: string;
+  accountType: "manager" | "member";
+  workspaceName: string;
+  inviteCode: string;
+};
+
 export default function RegisterPage() {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterForm>({
     name: "",
     email: "",
     password: "",
+    accountType: "member",
+    workspaceName: "",
+    inviteCode: "",
   });
 
   const [error, setError] = useState("");
-
-  // one handler for all inputs
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    if (error) setError("");
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "inviteCode" ? value.toUpperCase() : value,
+    }));
   };
 
-  const handleRegister = async () => {
+  const handleAccountTypeChange = (accountType: "manager" | "member") => {
+    if (error) setError("");
+    setFormData((prev) => ({
+      ...prev,
+      accountType,
+      workspaceName: accountType === "manager" ? prev.workspaceName : "",
+      inviteCode: accountType === "member" ? prev.inviteCode : "",
+    }));
+  };
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim()) {
+      setError("Please fill out all fields.");
+      return;
+    }
+
+    if (formData.accountType === "manager" && !formData.workspaceName.trim()) {
+      setError("Workspace name is required for manager signup.");
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      const res = await api.post(API.AUTH.REGISTER, formData);
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        accountType: formData.accountType,
+        workspaceName: formData.accountType === "manager" ? formData.workspaceName.trim() : undefined,
+        inviteCode:
+          formData.accountType === "member" && formData.inviteCode.trim()
+            ? formData.inviteCode.trim()
+            : undefined,
+      };
 
-      // save user in  reduxx
+      const res = await api.post(API.AUTH.REGISTER, payload);
       dispatch(setUser(res.data.user));
-
       router.push("/auth/login");
-    } catch (err) {
-      setError("Registration failed. Please try again.");
+    } catch (err: unknown) {
+      const apiError = err as AxiosError<{ message?: string }>;
+      const message = apiError.response?.data?.message || "Registration failed. Please try again.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -59,19 +111,51 @@ export default function RegisterPage() {
             <p className="mt-2 text-sm text-muted-foreground">Create your account and begin tracking habits today.</p>
           </div>
 
-          <div className="space-y-3">
+          <form onSubmit={handleRegister} className="space-y-3">
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-white/60 p-1">
+              <button
+                type="button"
+                onClick={() => handleAccountTypeChange("member")}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                  formData.accountType === "member"
+                    ? "bg-lavender/20 text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Member
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAccountTypeChange("manager")}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                  formData.accountType === "manager"
+                    ? "bg-lavender/20 text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Manager
+              </button>
+            </div>
+
             <input
               className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
               placeholder="Name"
               name="name"
+              value={formData.name}
               onChange={handleChange}
+              autoComplete="name"
+              required
             />
 
             <input
               className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
               placeholder="Email"
               name="email"
+              type="email"
+              value={formData.email}
               onChange={handleChange}
+              autoComplete="email"
+              required
             />
 
             <input
@@ -79,15 +163,40 @@ export default function RegisterPage() {
               type="password"
               placeholder="Password"
               name="password"
+              value={formData.password}
               onChange={handleChange}
+              autoComplete="new-password"
+              required
             />
-          </div>
+
+            {formData.accountType === "manager" ? (
+              <input
+                className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+                placeholder="Workspace name"
+                name="workspaceName"
+                value={formData.workspaceName}
+                onChange={handleChange}
+                required
+              />
+            ) : (
+              <div className="space-y-1">
+                <input
+                  className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm uppercase outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+                  placeholder="Invite code (optional)"
+                  name="inviteCode"
+                  value={formData.inviteCode}
+                  onChange={handleChange}
+                />
+                <p className="text-xs text-muted-foreground">Leave empty to sign up without joining a workspace now.</p>
+              </div>
+            )}
+
+            <button type="submit" disabled={isSubmitting} className="btn-cta mt-2 w-full py-2.5 disabled:opacity-60">
+              {isSubmitting ? "Creating account..." : "Sign Up"}
+            </button>
+          </form>
 
           {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-
-          <button onClick={handleRegister} className="btn-cta mt-5 w-full py-2.5">
-            Sign Up
-          </button>
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Already registered?{" "}

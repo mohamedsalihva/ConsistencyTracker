@@ -15,6 +15,8 @@ import { TopHabits } from "./components/TopHabits";
 import { WeekStrip } from "./components/WeekStrip";
 import { CreateHabitModal } from "./components/CreateHabitModal";
 import { CoachChat } from "./components/CoachChat";
+import api from "@/lib/axios";
+import API from "@/lib/apiRoutes";
 
 
 const navTabs = [
@@ -23,9 +25,15 @@ const navTabs = [
   { label: "Analytics", icon: <BarChart3 className="h-3.5 w-3.5" /> },
 ];
 
+
 export default function DashboardPage() {
-  const user = useSelector((s: RootState) => s.auth.user as { name?: string; email?: string } | null);
+
+  const user = useSelector((s: RootState) => s.auth.user as { name?: string; email?: string; role?: "manager" | "member" } | null);
+
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [inviteCode, setInviteCode] = useState("");
+  const [copied, setCopied] = useState(false);
+
   const userMenuRef = useRef<HTMLDivElement>(null);
   const {
     habits,
@@ -52,12 +60,38 @@ export default function DashboardPage() {
 
   const displayName = user?.name?.trim() || "User";
   const displayEmail = user?.email?.trim() || "No email";
+
   const initials = useMemo(() => {
     const parts = displayName.split(/\s+/).filter(Boolean);
     if (!parts.length) return "U";
     if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
     return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
   }, [displayName]);
+
+  useEffect(() => {
+    const loadInvite = async () => {
+      if (user?.role !== "manager") return;
+      try {
+        const res = await api.get(API.WORKSPACE.MY_INVITE);
+        setInviteCode(res.data.inviteCode || "");
+      } catch {
+        setInviteCode("");
+      }
+    };
+
+    loadInvite();
+  }, [user?.role]);
+
+  const handleCopyInvite = async () => {
+    if (!inviteCode) return;
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -179,6 +213,26 @@ export default function DashboardPage() {
             </div>
           </div>
         </motion.nav>
+
+        {user?.role === "manager" && inviteCode && (
+          <motion.section
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="glass-card mb-5 flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5"
+          >
+            <div>
+              <p className="text-xs text-muted-foreground">Workspace Invite Code</p>
+              <p className="mt-1 font-mono text-sm font-semibold text-foreground sm:text-base">{inviteCode}</p>
+            </div>
+            <button
+              onClick={handleCopyInvite}
+              className="rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-foreground transition hover:bg-muted"
+            >
+              {copied ? "Copied" : "Copy code"}
+            </button>
+          </motion.section>
+        )}
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
           <Hero today={view.today} habitsCount={habits.length} todayPct={view.todayPct} maxStreak={view.maxStreak} activeDays={view.activeDays} />
