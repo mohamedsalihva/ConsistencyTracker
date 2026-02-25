@@ -27,8 +27,15 @@ const navTabs = [
 
 
 export default function DashboardPage() {
-
-  const user = useSelector((s: RootState) => s.auth.user as { name?: string; email?: string; role?: "manager" | "member" } | null);
+  const user = useSelector(
+    (s: RootState) =>
+      s.auth.user as {
+        name?: string;
+        email?: string;
+        role?: "manager" | "member";
+        workspaceId?: string | null;
+      } | null
+  );
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [inviteCode, setInviteCode] = useState("");
@@ -231,6 +238,19 @@ export default function DashboardPage() {
             >
               {copied ? "Copied" : "Copy code"}
             </button>
+          </motion.section>
+        )}
+        
+
+        {user?.role === "member" && user.workspaceId && (
+          <motion.section
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="glass-card mb-5 px-4 py-3 sm:px-5"
+          >
+            <p className="text-xs text-muted-foreground">Workspace Status</p>
+            <p className="mt-1 text-sm font-medium text-foreground">You joined a workspace successfully.</p>
           </motion.section>
         )}
 
