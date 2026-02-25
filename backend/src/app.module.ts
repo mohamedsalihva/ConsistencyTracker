@@ -6,9 +6,14 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AiModule } from './ai/ai.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationsModule } from './notification/notification.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
+    NotificationsModule,
+
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60, limit: 3 }],
     }),
@@ -17,7 +22,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     HabitsModule,
     AuthModule,
     UsersModule,
-    AiModule
+    AiModule,
   ],
 })
 export class AppModule {}
