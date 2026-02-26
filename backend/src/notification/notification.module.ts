@@ -4,6 +4,7 @@ import { Habit, HabitSchema } from 'src/habits/habit.schema';
 import { User, UserSchema } from 'src/users/users.schema';
 import { NotificationLog, NotificationLogSchema } from './notification-log.schema';
 import { notificationService } from './notification.service';
+import { NotificationController } from './notification.controller';
 
 @Module({
   imports: [
@@ -14,5 +15,6 @@ import { notificationService } from './notification.service';
     ]),
   ],
   providers: [notificationService],
+  controllers: [NotificationController]
 })
 export class NotificationsModule {}

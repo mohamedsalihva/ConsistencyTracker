@@ -130,4 +130,11 @@ ${lines.join('\n')}
       }
     }
   }
+
+  async getManagerHistory(managerId: string){
+    return this.logModel
+    .find({managerId, type: 'incomplete-habits'})
+    .sort({createdAt: -1})
+    .limit(20);
+  }
 }
