@@ -22,6 +22,10 @@ const API = {
   WORKSPACE: {
     MY_INVITE: "/workspace/my-invite",
   },
+  NOTIFICATION: {
+  MY_HISTORY: "/notification/my-history",
+},
+
 };
 
 export default API;
