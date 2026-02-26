@@ -51,12 +51,12 @@ export default function LoginPage() {
 
           <div className="space-y-3">
             <input
-              className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+              className="w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
               placeholder="Email"
               onChange={(e) => setEmail(e.target.value)}
             />
             <input
-              className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+              className="w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
               type="password"
               placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
@@ -71,7 +71,7 @@ export default function LoginPage() {
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             No account yet?{" "}
-            <Link href="/auth/register" className="font-medium text-lavender hover:underline">
+            <Link href="/auth/register" className="font-medium text-primary hover:underline">
               Register
             </Link>
           </p>

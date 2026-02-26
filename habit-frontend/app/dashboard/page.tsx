@@ -76,42 +76,49 @@ export default function DashboardPage() {
           onSignOut={signOut}
         />
 
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-          <Hero today={view.today} habitsCount={habits.length} todayPct={view.todayPct} maxStreak={view.maxStreak} activeDays={view.activeDays} />
-          <DailyChart chartMode={chartMode} setChartMode={setChartMode} chartData={view.chartData} maxBar={view.maxBar} />
-        </div>
+        <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}>
+          <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}>
+            <Hero today={view.today} habitsCount={habits.length} todayPct={view.todayPct} maxStreak={view.maxStreak} activeDays={view.activeDays} />
+          </motion.div>
 
-        <KpiGrid habitsCount={habits.length} todayCount={view.todayCount} maxStreak={view.maxStreak} totalDone={view.totalDone} />
+          <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}>
+            <KpiGrid habitsCount={habits.length} todayCount={view.todayCount} maxStreak={view.maxStreak} totalDone={view.totalDone} />
+          </motion.div>
 
-        <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <div className="flex flex-col gap-5">
-            <RingSection todayPct={view.todayPct} weekPct={view.weekPct} monthPct={view.monthPct} allPct={view.allPct} />
-            <Matrix
-              habits={habits}
-              last35={view.last35}
-              todayKey={view.todayKey}
-              completedToday={completeToday}
-              onToggleCheckin={toggleCheckin}
-              onRenameHabit={renameHabit}
-              onDeleteHabit={deleteHabit}
+          <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }} className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="flex flex-col gap-6">
+              <Matrix
+                habits={habits}
+                last35={view.last35}
+                todayKey={view.todayKey}
+                completedToday={completeToday}
+                onToggleCheckin={toggleCheckin}
+                onRenameHabit={renameHabit}
+                onDeleteHabit={deleteHabit}
+              />
+              <RingSection todayPct={view.todayPct} weekPct={view.weekPct} monthPct={view.monthPct} allPct={view.allPct} />
+              <WeekStrip last7={view.last7} map={view.map} habitsCount={habits.length} todayKey={view.todayKey} />
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <RolePanels
+                role={user?.role}
+                workspaceId={user?.workspaceId}
+                inviteCode={inviteCode}
+                copied={copied}
+                onCopyInvite={copyInvite}
+              />
+              <TopHabits topHabits={view.topHabits} />
+              <DailyChart chartMode={chartMode} setChartMode={setChartMode} chartData={view.chartData} maxBar={view.maxBar} />
+            </div>
+          </motion.div>
+
+          <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }} className="mt-6">
+            <CoachChat
+              context={`todayPct=${view.todayPct}, habits=${habits.length}, maxStreak=${view.maxStreak}, activeDays=${view.activeDays}, totalDone=${view.totalDone}`}
             />
-          </div>
-          <div className="flex flex-col gap-5">
-            <RolePanels
-              role={user?.role}
-          workspaceId={user?.workspaceId}
-          inviteCode={inviteCode}
-          copied={copied}
-          onCopyInvite={copyInvite}
-        />
-            <TopHabits topHabits={view.topHabits} />
-          </div>
-        </div>
-
-        <WeekStrip last7={view.last7} map={view.map} habitsCount={habits.length} todayKey={view.todayKey} />
-        <CoachChat
-          context={`todayPct=${view.todayPct}, habits=${habits.length}, maxStreak=${view.maxStreak}, activeDays=${view.activeDays}, totalDone=${view.totalDone}`}
-        />
+          </motion.div>
+        </motion.div>
 
         {loading && <p className="mt-4 text-sm text-muted-foreground">Loading habits...</p>}
         {error && <p className="mt-4 text-sm text-destructive">{error}</p>}

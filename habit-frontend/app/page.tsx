@@ -28,10 +28,10 @@ export default function Home() {
           className="glass-card mb-6 flex flex-wrap items-center justify-between gap-3 px-5 py-3"
         >
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#8d67c8,#d8759f)]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#ff7b1a,#ff3b2f)]">
               <span className="text-sm font-bold text-primary-foreground">H</span>
             </div>
-            <span className="font-serif text-xl text-foreground">Habit Tracker</span>
+            <span className="font-serif text-xl text-foreground">HabitFlow</span>
           </div>
 
           <div className="hidden gap-1.5 sm:flex">
@@ -86,7 +86,7 @@ export default function Home() {
             <p className="text-sm font-medium text-muted-foreground">Live Preview</p>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {previewStats.map((item) => (
-                <div key={item.label} className="rounded-2xl border border-border/70 bg-white/75 p-4">
+                <div key={item.label} className="rounded-2xl border border-border/80 bg-card/70 p-4">
                   <div className="mb-2 inline-flex rounded-xl bg-secondary p-2 text-lavender">{item.icon}</div>
                   <p className="text-2xl font-semibold">{item.value}</p>
                   <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -101,7 +101,7 @@ export default function Home() {
             <p className="text-sm font-medium text-muted-foreground">How It Works</p>
             <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
               {workflow.map((item) => (
-                <div key={item.title} className="rounded-2xl border border-border/70 bg-white/70 p-4">
+                <div key={item.title} className="rounded-2xl border border-border/80 bg-card/70 p-4">
                   <span className="chip chip-active inline-flex h-7 w-7 items-center justify-center p-0">{item.step}</span>
                   <p className="mt-3 text-sm font-semibold">{item.title}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>

@@ -112,13 +112,13 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleRegister} className="space-y-3">
-            <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-white/60 p-1">
+            <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-card/70 p-1">
               <button
                 type="button"
                 onClick={() => handleAccountTypeChange("member")}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                   formData.accountType === "member"
-                    ? "bg-lavender/20 text-foreground"
+                    ? "bg-primary/20 text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                 onClick={() => handleAccountTypeChange("manager")}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                   formData.accountType === "manager"
-                    ? "bg-lavender/20 text-foreground"
+                    ? "bg-primary/20 text-foreground"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -138,7 +138,7 @@ export default function RegisterPage() {
             </div>
 
             <input
-              className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+              className="w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
               placeholder="Name"
               name="name"
               value={formData.name}
@@ -148,7 +148,7 @@ export default function RegisterPage() {
             />
 
             <input
-              className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+              className="w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
               placeholder="Email"
               name="email"
               type="email"
@@ -159,7 +159,7 @@ export default function RegisterPage() {
             />
 
             <input
-              className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+              className="w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
               type="password"
               placeholder="Password"
               name="password"
@@ -171,7 +171,7 @@ export default function RegisterPage() {
 
             {formData.accountType === "manager" ? (
               <input
-                className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+                className="w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
                 placeholder="Workspace name"
                 name="workspaceName"
                 value={formData.workspaceName}
@@ -181,7 +181,7 @@ export default function RegisterPage() {
             ) : (
               <div className="space-y-1">
                 <input
-                  className="w-full rounded-xl border border-border bg-white/80 px-3 py-2.5 text-sm uppercase outline-none transition focus:border-lavender/40 focus:ring-2 focus:ring-lavender/20"
+                  className="w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm uppercase text-foreground outline-none transition focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
                   placeholder="Invite code (optional)"
                   name="inviteCode"
                   value={formData.inviteCode}
@@ -200,7 +200,7 @@ export default function RegisterPage() {
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Already registered?{" "}
-            <Link href="/auth/login" className="font-medium text-lavender hover:underline">
+            <Link href="/auth/login" className="font-medium text-primary hover:underline">
               Login
             </Link>
           </p>

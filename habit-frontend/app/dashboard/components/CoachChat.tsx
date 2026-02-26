@@ -6,7 +6,7 @@ import type { AppDispatch, RootState } from "@/store";
 import { addMessage, setChatError, setLoading } from "@/store/chatSlice";
 import type { AxiosError } from "axios";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, MessageCircle, X } from "lucide-react";
+import { Bot, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -78,11 +78,11 @@ export function CoachChat({ context }: CoachChatProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.96 }}
             transition={{ duration: 0.18 }}
-            className="pointer-events-auto mb-3 h-[520px] w-[min(420px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-border/80 bg-card shadow-[0_28px_64px_rgba(38,22,65,.32)]"
+            className="pointer-events-auto mb-3 h-[520px] w-[min(420px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-border/80 bg-card shadow-[0_28px_64px_rgba(40,18,9,.36)]"
           >
-            <div className="flex items-center justify-between border-b border-border/70 bg-[linear-gradient(120deg,rgba(141,103,200,.2),rgba(216,117,159,.16))] px-4 py-3">
+            <div className="flex items-center justify-between border-b border-border/70 bg-[linear-gradient(120deg,rgba(255,123,26,.18),rgba(255,59,47,.16))] px-4 py-3">
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,#8d67c8,#d8759f)] text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ff7b1a,#ff3b2f)] text-white">
                   <Bot className="h-4 w-4" />
                 </span>
                 <div>
@@ -107,7 +107,7 @@ export function CoachChat({ context }: CoachChatProps) {
                     <p
                       className={`inline-block max-w-[90%] rounded-2xl px-3 py-2 text-xs sm:text-sm ${
                         m.role === "user"
-                          ? "bg-[linear-gradient(135deg,#8d67c8,#d8759f)] text-white"
+                          ? "bg-[linear-gradient(135deg,#ff7b1a,#ff3b2f)] text-white"
                           : "border border-border bg-secondary text-foreground"
                       }`}
                     >
@@ -150,7 +150,7 @@ export function CoachChat({ context }: CoachChatProps) {
         onClick={() => setOpen((v) => !v)}
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.96 }}
-        className="pointer-events-auto relative flex h-12 w-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,#8d67c8,#d8759f)] text-white shadow-[0_20px_40px_rgba(141,103,200,.45)]"
+        className="pointer-events-auto relative flex h-12 w-12 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ff7b1a,#ff3b2f)] text-white shadow-[0_20px_40px_rgba(255,123,26,.45)]"
         aria-label={open ? "Close AI coach" : "Open AI coach"}
       >
         <Bot className="h-6 w-6" />

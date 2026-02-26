@@ -50,7 +50,7 @@ function Meter({ pct, stroke, label, emoji, delay }: { pct: number; stroke: stri
     <motion.div className="flex flex-col items-center gap-2.5" whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}>
       <div className="relative">
         <svg width="80" height="80" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r={r} fill="none" stroke="hsl(var(--border))" strokeWidth="5" />
+          <circle cx="40" cy="40" r={r} fill="none" stroke="rgba(255,255,255,.12)" strokeWidth="5" />
           <motion.circle
             cx="40"
             cy="40"

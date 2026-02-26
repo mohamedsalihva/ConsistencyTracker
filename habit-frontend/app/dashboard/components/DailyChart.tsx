@@ -1,5 +1,6 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { BarChart3 } from "lucide-react";
 
 type ChartPoint = { label: string; count: number; col: { fill: string } };
 
@@ -23,9 +24,12 @@ export function DailyChart({ chartMode, setChartMode, chartData, maxBar }: Daily
       <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-sky/10 blur-3xl" />
 
       <div className="mb-5 flex items-center justify-between gap-2">
-        <div>
-          <p className="text-sm font-bold text-foreground">Daily Activity</p>
-          <p className="text-xs text-muted-foreground">completions / day</p>
+        <div className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4 text-primary" />
+          <div>
+            <p className="text-xl font-black text-foreground">Weekly Focus</p>
+            <p className="text-xs text-muted-foreground">completion volume</p>
+          </div>
         </div>
         <div className="flex gap-1.5">
           {(["14d", "7d"] as const).map((mode) => (
@@ -36,7 +40,7 @@ export function DailyChart({ chartMode, setChartMode, chartData, maxBar }: Daily
         </div>
       </div>
 
-      <div className="relative flex h-[150px] items-end gap-1.5">
+      <div className="relative flex h-[150px] items-end gap-2">
         {chartData.map((d, i) => {
           const h = Math.max((d.count / maxBar) * 126, d.count ? 10 : 4);
           const isHovered = hoveredIdx === i;
@@ -55,7 +59,7 @@ export function DailyChart({ chartMode, setChartMode, chartData, maxBar }: Daily
                 <motion.div
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute -top-7 z-10 rounded-md bg-foreground px-2 py-0.5 text-[10px] font-semibold text-white shadow-lg"
+                  className="absolute -top-7 z-10 rounded-md bg-foreground px-2 py-0.5 text-[10px] font-semibold text-[#031019] shadow-lg"
                 >
                   {d.count} done
                 </motion.div>
@@ -64,10 +68,13 @@ export function DailyChart({ chartMode, setChartMode, chartData, maxBar }: Daily
                 className="w-full transition-all duration-200"
                 style={{
                   height: h,
-                  background: d.count ? d.col.fill : "hsl(var(--border))",
-                  borderRadius: "6px 6px 2px 2px",
+                  background: d.count
+                    ? "linear-gradient(180deg, rgba(255,123,26,.95) 0%, rgba(255,59,47,.86) 100%)"
+                    : "rgba(255,255,255,.08)",
+                  borderRadius: "12px 12px 2px 2px",
                   opacity: isHovered ? 1 : d.count ? 0.85 : 0.5,
                   transform: isHovered ? "scaleX(1.15)" : "scaleX(1)",
+                  boxShadow: d.count ? "0 0 18px rgba(255,123,26,.28)" : "none",
                 }}
               />
               <span className={`text-[9px] font-medium transition-colors ${isHovered ? "text-foreground" : "text-muted-foreground"}`}>{d.label}</span>

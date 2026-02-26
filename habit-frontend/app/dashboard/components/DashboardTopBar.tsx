@@ -70,13 +70,13 @@ export function DashboardTopBar({
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="glass-card relative z-20 mb-6 flex flex-wrap items-center justify-between gap-3 overflow-visible px-5 py-3"
+      className="glass-card relative z-20 mb-6 flex flex-wrap items-center justify-between gap-3 overflow-visible border-white/10 bg-[#1a0f0b]/80 px-5 py-3"
     >
       <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#8d67c8,#d8759f)]">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/40 bg-primary/20 shadow-[0_0_20px_rgba(255,123,26,.35)]">
           <span className="text-sm font-bold text-primary-foreground">H</span>
         </div>
-        <span className="font-serif text-xl text-foreground">Habit Tracker</span>
+        <span className="font-serif text-xl text-foreground">HabitFlow</span>
       </div>
 
       <div className="hidden gap-1.5 sm:flex">
@@ -103,7 +103,7 @@ export function DashboardTopBar({
           <div ref={alertsRef} className="relative">
             <button
               onClick={() => setIsAlertsOpen((prev) => !prev)}
-              className="group relative flex h-10 w-10 items-center justify-center rounded-full border border-border/80 bg-white/85 shadow-[0_8px_18px_rgba(70,44,110,.14)] backdrop-blur transition hover:scale-[1.03] hover:bg-white"
+              className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 shadow-[0_8px_18px_rgba(0,0,0,.28)] backdrop-blur transition hover:scale-[1.03] hover:bg-white/10"
               aria-haspopup="menu"
               aria-expanded={isAlertsOpen}
               title="Alerts"
@@ -123,10 +123,10 @@ export function DashboardTopBar({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ duration: 0.16 }}
-                  className="absolute right-0 top-[calc(100%+12px)] z-50 w-72 overflow-hidden rounded-2xl border border-border/85 bg-card shadow-[0_20px_38px_rgba(34,24,60,.2)]"
+                  className="absolute right-0 top-[calc(100%+12px)] z-50 w-72 overflow-hidden rounded-2xl border border-white/10 bg-[#1a0f0b] shadow-[0_20px_38px_rgba(0,0,0,.35)]"
                   role="menu"
                 >
-                  <div className="border-b border-border/80 bg-[radial-gradient(circle_at_top_left,#f3eaff_0%,#fff_62%)] px-3 py-2.5">
+                  <div className="border-b border-white/10 bg-white/5 px-3 py-2.5">
                     <p className="text-xs font-semibold text-foreground">Manager Alerts</p>
                   </div>
                   <div className="max-h-72 overflow-y-auto p-2">
@@ -135,7 +135,7 @@ export function DashboardTopBar({
                     ) : notifyHistory.length ? (
                       <div className="space-y-1">
                         {notifyHistory.slice(0, 6).map((item) => (
-                          <div key={item._id} className="rounded-lg border border-border bg-white/70 px-2.5 py-2">
+                          <div key={item._id} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2">
                             <p className="text-xs font-medium text-foreground">Daily incomplete-habit alert sent</p>
                             <p className="mt-0.5 text-[11px] text-muted-foreground">{item.dateKey}</p>
                           </div>
@@ -154,12 +154,12 @@ export function DashboardTopBar({
         <div ref={userMenuRef} className="relative">
           <button
             onClick={() => setIsUserMenuOpen((prev) => !prev)}
-            className="group flex h-10 w-10 items-center justify-center rounded-full border border-border/80 bg-white/85 shadow-[0_8px_18px_rgba(70,44,110,.14)] backdrop-blur transition hover:scale-[1.03] hover:bg-white"
+            className="group flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-[0_8px_18px_rgba(0,0,0,.28)] backdrop-blur transition hover:scale-[1.03] hover:bg-white/10"
             aria-haspopup="menu"
             aria-expanded={isUserMenuOpen}
             title={displayName}
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[linear-gradient(135deg,#8d67c8,#d8759f)] text-[10px] font-semibold text-white shadow-[0_8px_16px_rgba(141,103,200,.45)]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-[10px] font-semibold text-primary shadow-[0_8px_16px_rgba(255,123,26,.3)]">
               {initials}
             </span>
             <span className="pointer-events-none absolute -bottom-1 -right-1 rounded-full border border-border/80 bg-white p-0.5 shadow-sm">
@@ -174,12 +174,12 @@ export function DashboardTopBar({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8, scale: 0.98 }}
                 transition={{ duration: 0.16 }}
-                className="absolute right-0 top-[calc(100%+12px)] z-50 w-56 overflow-hidden rounded-2xl border border-border/85 bg-card shadow-[0_20px_38px_rgba(34,24,60,.2)]"
+                className="absolute right-0 top-[calc(100%+12px)] z-50 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#1a0f0b] shadow-[0_20px_38px_rgba(0,0,0,.35)]"
                 role="menu"
               >
-                <div className="bg-[radial-gradient(circle_at_top_left,#f3eaff_0%,#fff_62%)] px-3 py-3">
+                <div className="bg-white/5 px-3 py-3">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#8d67c8,#d8759f)] text-[10px] font-semibold text-white shadow-[0_8px_20px_rgba(141,103,200,.45)]">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-semibold text-primary shadow-[0_8px_20px_rgba(255,123,26,.3)]">
                       {initials}
                     </span>
                     <div className="min-w-0">
