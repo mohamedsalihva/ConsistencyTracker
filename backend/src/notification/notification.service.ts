@@ -50,12 +50,14 @@ export class notificationService {
   }
 
   @Cron(process.env.MANAGER_NOTIFY_CRON || '0 21 * * *')
+  
   async notifyManagersForIncompleteHabits() {
     const today = this.dayKey();
+     this.logger.log('CRON RUNNING');
 
     const members = await this.userModel.find({
       role: 'member',
-      mangerId: { $ne: null },
+      managerId: { $ne: null },
       workspaceId: { $ne: null },
     });
 
