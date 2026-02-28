@@ -19,13 +19,19 @@ const API = {
   AI: {
     CHAT: "/ai/chat",
   },
+
   WORKSPACE: {
     MY_INVITE: "/workspace/my-invite",
   },
-  NOTIFICATION: {
-  MY_HISTORY: "/notification/my-history",
-},
 
+  NOTIFICATION: {
+    MY_HISTORY: "/notification/my-history",
+  },
+  
+  BILLING: {
+    CREATE_ORDER: "/billing/create-order",
+    VERIFY_PAYMENT: "/billing/verify-payment",
+  },
 };
 
 export default API;

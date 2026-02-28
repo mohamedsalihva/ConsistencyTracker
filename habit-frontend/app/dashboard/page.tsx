@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import { useDashboard } from "./hooks/useDashboard";
 import { useManagerInsights } from "./hooks/useManagerInsights";
@@ -18,11 +18,13 @@ import { CreateHabitModal } from "./components/CreateHabitModal";
 import { CoachChat } from "./components/CoachChat";
 import { DashboardTopBar } from "./components/DashboardTopBar";
 import { RolePanels } from "./components/RolePanels";
+import { useBilling } from "./hooks/useBilling";
 
 type DashboardUser = {
   name?: string;
   email?: string;
   role?: "manager" | "member";
+  subscriptionStatus?: "none" | "pending" | "active" | "failed";
   workspaceId?: string | null;
 };
 
@@ -50,10 +52,15 @@ export default function DashboardPage() {
     toggleCheckin,
     signOut,
   } = useDashboard();
+
   const { inviteCode, copied, copyInvite, notifyHistory, notifyLoading } = useManagerInsights(user?.role);
+  const { paymentLoading, paymentError, handlePayNow } = useBilling(user);
+
 
   const displayName = user?.name?.trim() || "User";
   const displayEmail = user?.email?.trim() || "No email";
+
+
 
   const initials = useMemo(() => {
     const parts = displayName.split(/\s+/).filter(Boolean);
@@ -103,10 +110,14 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-6">
               <RolePanels
                 role={user?.role}
+                subscriptionStatus={user?.subscriptionStatus}
                 workspaceId={user?.workspaceId}
                 inviteCode={inviteCode}
                 copied={copied}
                 onCopyInvite={copyInvite}
+                onPayNow={handlePayNow}
+                paymentError={paymentError}
+                paymentLoading={paymentLoading}
               />
               <TopHabits topHabits={view.topHabits} />
               <DailyChart chartMode={chartMode} setChartMode={setChartMode} chartData={view.chartData} maxBar={view.maxBar} />

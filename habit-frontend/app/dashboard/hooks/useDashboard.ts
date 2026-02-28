@@ -40,6 +40,7 @@ export function useDashboard() {
     })();
   }, [dispatch, router]);
 
+
   const view = useMemo(() => buildDashboardView(habits, chartMode), [habits, chartMode]);
   const remainingSlots = Math.max(0, 15 - habits.length);
 
@@ -65,6 +66,7 @@ export function useDashboard() {
     }
 
     try {
+
       setCreatingHabit(true);
       setCreateError("");
       const created = await Promise.all(cleanTitles.map((title) => api.post<Habit>(API.HABITS.CREATE, { title })));
@@ -84,6 +86,8 @@ export function useDashboard() {
     }
   };
 
+
+
   const completeToday = async (habitId: string) => {
     try {
       const res = await api.post<Habit>(API.HABITS.COMPLETE(habitId));
@@ -97,6 +101,7 @@ export function useDashboard() {
       setError(e.response?.data?.message ?? "Failed to mark habit as complete.");
     }
   };
+
 
   const renameHabit = async (habitId: string, title: string) => {
     try {
@@ -112,6 +117,7 @@ export function useDashboard() {
     }
   };
 
+
   const deleteHabit = async (habitId: string) => {
     try {
       await api.delete(API.HABITS.DELETE(habitId));
@@ -125,6 +131,7 @@ export function useDashboard() {
       setError(e.response?.data?.message ?? "failed to delete habit");
     }
   };
+
 
   const toggleCheckin = async(habitId: string, date: string, completed: boolean) => {
     try {
@@ -140,6 +147,7 @@ export function useDashboard() {
     }
   };
 
+
   const signOut = async ()=>{
     try {
       await api.post(API.AUTH.LOGOUT);
@@ -152,6 +160,7 @@ export function useDashboard() {
     }
   };
 
+  
   return {
     habits,
     loading,
