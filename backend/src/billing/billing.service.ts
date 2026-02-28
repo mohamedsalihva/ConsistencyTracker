@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { UsersService } from 'src/users/users.service';
@@ -17,28 +18,51 @@ export class BillingService {
   constructor(private usersService: UsersService) {}
 
   async createMentorOrder(userId: string) {
+
     const user = await this.usersService.findById(userId);
+    
     if (!user) throw new BadRequestException('User not found');
-    if (user.role! == 'manager')
-      throw new ForbiddenException('only manager can pay');
+    
+    const role = String
+
+    if (user.role !== "manager")
+      throw new ForbiddenException('Register as manager first');
+
+    if(user.subscriptionStatus === 'active'){
+      throw new ForbiddenException('manager subscription already active');
+    }
+
 
     const amountInPaise = Number(
       process.env.MANAGER_PLAN_AMOUNT_PAISE ?? '19900',
     );
+    if(!Number.isFinite(amountInPaise) || amountInPaise <=0){
+      throw new BadRequestException("Invalid MANAGER_PLAN_AMOUNT_PAISE")
+    }
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  throw new BadRequestException("Razorpay keys are missing in .env");
+}
 
-    const order = await this.razorpay.orders.create({
-      amount: amountInPaise,
-      currency: 'INR',
-      receipt: `rcpt_${userId}_${Date.now()}`,
-      notes: { userId },
-    });
+    await this.usersService.updateById(userId, {
+      subscriptionStatus: 'pending',
+    })
+try {
+  const order = await this.razorpay.orders.create({
+    amount: amountInPaise,
+    currency: "INR",
+    receipt: `r_$${Date.now()}`,
+    notes: { userId },
+  });
+  return {
+    orderId: order.id,
+    amount: order.amount,
+    currency: order.currency,
+    keyId: process.env.RAZORPAY_KEY_ID,
+  };
+} catch (e: any) {
+  throw new BadRequestException(e?.error?.description || e?.message || "Razorpay order create failed");
+}
 
-    return {
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      keyId: process.env.RAZORPAY_KEY_ID,
-    };
   }
 
   async verifyMentorPayment(
@@ -49,6 +73,7 @@ export class BillingService {
   ) {
     const user = await this.usersService.findById(userId);
     if (!user) throw new BadRequestException('user not found');
+
     if (user.role !== 'manager')
       throw new ForbiddenException(' only manager can verify payment');
 
