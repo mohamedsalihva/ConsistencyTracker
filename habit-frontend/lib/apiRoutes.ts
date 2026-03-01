@@ -22,12 +22,17 @@ const API = {
 
   WORKSPACE: {
     MY_INVITE: "/workspace/my-invite",
+    OVERVIEW: "/workspace/overview",
+    MEMBERS: "/workspace/members",
+    JOIN: "/workspace/join",
+    REGENERATE_INVITE: "/workspace/regenerate-invite",
+    REMOVE_MEMBER: (memberId: string) => `/workspace/members/${memberId}`,
   },
 
   NOTIFICATION: {
     MY_HISTORY: "/notification/my-history",
   },
-  
+
   BILLING: {
     CREATE_ORDER: "/billing/create-order",
     VERIFY_PAYMENT: "/billing/verify-payment",

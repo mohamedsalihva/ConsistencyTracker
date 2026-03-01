@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import { useDashboard } from "./hooks/useDashboard";
 import { useManagerInsights } from "./hooks/useManagerInsights";
+import { useWorkspaceManagement } from "./hooks/useWorkspaceManagement";
 import { Hero } from "./components/Hero";
 import { DailyChart } from "./components/DailyChart";
 import { KpiGrid } from "./components/KpiGrid";
@@ -18,9 +19,12 @@ import { CreateHabitModal } from "./components/CreateHabitModal";
 import { CoachChat } from "./components/CoachChat";
 import { DashboardTopBar } from "./components/DashboardTopBar";
 import { RolePanels } from "./components/RolePanels";
+import { WorkspaceManagerPanel } from "./components/WorkspaceManagerPanel";
+import { JoinWorkspaceCard } from "./components/JoinWorkspaceCard";
 import { useBilling } from "./hooks/useBilling";
 
 type DashboardUser = {
+  _id?: string;
   name?: string;
   email?: string;
   role?: "manager" | "member";
@@ -30,6 +34,7 @@ type DashboardUser = {
 
 export default function DashboardPage() {
   const user = useSelector((s: RootState) => s.auth.user as DashboardUser | null);
+
   const {
     habits,
     loading,
@@ -53,14 +58,41 @@ export default function DashboardPage() {
     signOut,
   } = useDashboard();
 
-  const { inviteCode, copied, copyInvite, notifyHistory, notifyLoading } = useManagerInsights(user?.role);
+  const { notifyHistory, notifyLoading } = useManagerInsights(user?.role);
   const { paymentLoading, paymentError, handlePayNow } = useBilling(user);
 
+  const {
+    overview,
+    members,
+    loading: workspaceLoading,
+    managerError,
+    managerActionLoading,
+    regenerateInvite,
+    removeMember,
+    joinCode,
+    setJoinCode,
+    joinLoading,
+    joinError,
+    joinSuccess,
+    joinWorkspace,
+  } = useWorkspaceManagement(user);
+
+  const [copied, setCopied] = useState(false);
+
+  const inviteCode = overview?.inviteCode ?? "";
+  const copyInvite = async () => {
+    if (!inviteCode) return;
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   const displayName = user?.name?.trim() || "User";
   const displayEmail = user?.email?.trim() || "No email";
-
-
 
   const initials = useMemo(() => {
     const parts = displayName.split(/\s+/).filter(Boolean);
@@ -83,16 +115,34 @@ export default function DashboardPage() {
           onSignOut={signOut}
         />
 
-        <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}>
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
+        >
           <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}>
-            <Hero today={view.today} habitsCount={habits.length} todayPct={view.todayPct} maxStreak={view.maxStreak} activeDays={view.activeDays} />
+            <Hero
+              today={view.today}
+              habitsCount={habits.length}
+              todayPct={view.todayPct}
+              maxStreak={view.maxStreak}
+              activeDays={view.activeDays}
+            />
           </motion.div>
 
           <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}>
-            <KpiGrid habitsCount={habits.length} todayCount={view.todayCount} maxStreak={view.maxStreak} totalDone={view.totalDone} />
+            <KpiGrid
+              habitsCount={habits.length}
+              todayCount={view.todayCount}
+              maxStreak={view.maxStreak}
+              totalDone={view.totalDone}
+            />
           </motion.div>
 
-          <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }} className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+            className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]"
+          >
             <div className="flex flex-col gap-6">
               <Matrix
                 habits={habits}
@@ -103,8 +153,18 @@ export default function DashboardPage() {
                 onRenameHabit={renameHabit}
                 onDeleteHabit={deleteHabit}
               />
-              <RingSection todayPct={view.todayPct} weekPct={view.weekPct} monthPct={view.monthPct} allPct={view.allPct} />
-              <WeekStrip last7={view.last7} map={view.map} habitsCount={habits.length} todayKey={view.todayKey} />
+              <RingSection
+                todayPct={view.todayPct}
+                weekPct={view.weekPct}
+                monthPct={view.monthPct}
+                allPct={view.allPct}
+              />
+              <WeekStrip
+                last7={view.last7}
+                map={view.map}
+                habitsCount={habits.length}
+                todayKey={view.todayKey}
+              />
             </div>
 
             <div className="flex flex-col gap-6">
@@ -119,12 +179,47 @@ export default function DashboardPage() {
                 paymentError={paymentError}
                 paymentLoading={paymentLoading}
               />
+
+              {user?.role === "manager" && (
+                <WorkspaceManagerPanel
+                  workspaceName={overview?.workspaceName}
+                  inviteCode={overview?.inviteCode}
+                  memberCount={overview?.memberCount}
+                  members={members}
+                  loading={workspaceLoading}
+                  error={managerError}
+                  actionLoading={managerActionLoading}
+                  onRegenerateInvite={regenerateInvite}
+                  onRemoveMember={removeMember}
+                  onCopyInvite={copyInvite}
+                />
+              )}
+
+              {user?.role === "member" && !user?.workspaceId && (
+                <JoinWorkspaceCard
+                  inviteCode={joinCode}
+                  setInviteCode={setJoinCode}
+                  loading={joinLoading}
+                  error={joinError}
+                  success={joinSuccess}
+                  onJoin={joinWorkspace}
+                />
+              )}
+
               <TopHabits topHabits={view.topHabits} />
-              <DailyChart chartMode={chartMode} setChartMode={setChartMode} chartData={view.chartData} maxBar={view.maxBar} />
+              <DailyChart
+                chartMode={chartMode}
+                setChartMode={setChartMode}
+                chartData={view.chartData}
+                maxBar={view.maxBar}
+              />
             </div>
           </motion.div>
 
-          <motion.div variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }} className="mt-6">
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+            className="mt-6"
+          >
             <CoachChat
               context={`todayPct=${view.todayPct}, habits=${habits.length}, maxStreak=${view.maxStreak}, activeDays=${view.activeDays}, totalDone=${view.totalDone}`}
             />
