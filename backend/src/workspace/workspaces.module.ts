@@ -4,10 +4,12 @@ import { Workspace, WorkspaceSchema } from "./workspace.schema";
 import { WorkspacesService } from "./workspaces.services";
 import { UsersModule } from "src/users/users.module";
 import { workspaceController } from "./workspace.controller";
+import { User, UserSchema } from "src/users/users.schema";
 
 @Module({
-    imports: [MongooseModule.forFeature([{name: Workspace.name, schema: WorkspaceSchema}]),
-    UsersModule,
+    imports: [MongooseModule.forFeature([{name: Workspace.name, schema: WorkspaceSchema},
+        {name:User.name, schema:UserSchema},
+    ]),
 ],
     controllers: [workspaceController],
     providers: [WorkspacesService],

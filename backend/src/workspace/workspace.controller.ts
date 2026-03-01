@@ -1,7 +1,8 @@
-import { Controller, Get,Req,UseGuards,NotFoundException } from "@nestjs/common";
+import { Controller, Get,Req,UseGuards,NotFoundException, Post, Body, Delete, Param } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { UsersService } from "src/users/users.service";
 import { WorkspacesService } from "./workspaces.services";
+import { JoinWorkspaceDto } from "./dto/join-workspace.dto";
 
 @Controller("workspace")
 export class workspaceController {
@@ -21,7 +22,32 @@ export class workspaceController {
         return{
             workspaceName: workspace.name,
             inviteCode:workspace.inviteCode,
-
         }
     }
+
+    @Get("overview")
+    overview(@Req() req:any){
+        return this.workspaceService.getworkspaceOverview(req.user.id);
+    }
+
+    @Get("members")
+    members(@Req()  req:any){
+        return this.workspaceService.getWorkspaceMembers(req.user.id);
+    }
+
+    @Post("join")
+    join(@Req() req:any, @Body() dto: JoinWorkspaceDto){
+            return this.workspaceService.joinWorkspace(req.user.id, dto.inviteCode);
+     }
+     
+       @Post("regenerate-invite")
+  regenerateInvite(@Req() req: any) {
+    return this.workspaceService.regenerateInviteCode(req.user.id);
+  }
+
+  @Delete("members/:memberId")
+  removeMember(@Req() req: any, @Param("memberId") memberId: string) {
+    return this.workspaceService.removeMember(req.user.id, memberId);
+  }
+
 }
