@@ -70,7 +70,7 @@ export function CoachChat({ context }: CoachChatProps) {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-24 right-4 z-[90] sm:bottom-6 sm:right-6">
+    <div className="pointer-events-none fixed bottom-24 right-4 z-[90] flex flex-col items-end sm:bottom-6 sm:right-6">
       <AnimatePresence>
         {open && (
           <motion.section

@@ -1,4 +1,5 @@
-﻿import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 type CreateHabitModalProps = {
   show: boolean;
@@ -43,8 +44,12 @@ export function CreateHabitModal({
           >
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-serif text-2xl text-foreground">Create Habit</h3>
-              <button type="button" onClick={onClose} className="rounded-lg border border-border bg-card px-2.5 py-1 text-sm text-muted-foreground transition-colors hover:bg-secondary">
-                ✕
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-lg border border-border bg-card px-2.5 py-1 text-sm text-muted-foreground transition-colors hover:bg-secondary"
+              >
+                <X className="h-4 w-4" />
               </button>
             </div>
 

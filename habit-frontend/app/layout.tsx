@@ -2,6 +2,9 @@ import "./globals.css";
 import { DM_Serif_Display, DM_Sans, JetBrains_Mono } from "next/font/google";
 import Providers from "./providers";
 
+
+
+
 const dmSerif = DM_Serif_Display({
   subsets: ["latin"],
   weight: "400",
@@ -33,3 +36,4 @@ export default function RootLayout({
     </html>
   );
 }
+
