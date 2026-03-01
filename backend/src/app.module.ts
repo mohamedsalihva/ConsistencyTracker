@@ -9,6 +9,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationsModule } from './notification/notification.module';
 import { BillingModule } from './billing/billing.module';
+import { WorkspaceModule } from './workspace/workspaces.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { BillingModule } from './billing/billing.module';
     UsersModule,
     AiModule,
     BillingModule,
+    WorkspaceModule,
   ],
 })
 export class AppModule {}
