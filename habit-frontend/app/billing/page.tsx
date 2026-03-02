@@ -59,9 +59,10 @@ export default function BillingPage() {
             </div>
           )}
 
-          <Link href='/dashboard' className='mt-6 inline-block text-sm font-medium text-primary hover:underline'>
+          <Link href='/' className='mt-6 inline-block text-sm font-medium text-primary hover:underline'>
             Back to dashboard
           </Link>
+          
         </section>
       </div>
     </main>

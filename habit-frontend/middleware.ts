@@ -3,8 +3,10 @@ import { NextResponse } from 'next/server';
 
 const DASHBOARD_PATH = '/dashboard';
 const BILLING_PATH = '/billing';
-const AUTH_PATHS = ['/auth/login', '/auth/register'];
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+
+const AUTH_PATHS = ['/auth/login', '/auth/register'];
+const GOOGLE_COMPLETE_PATH = '/auth/google-complete';
 
 type AuthUser = {
   role?: 'manager' | 'member';
@@ -35,12 +37,23 @@ async function getCurrentUser(token: string): Promise<AuthUser | null> {
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
+  const onboardingToken = req.cookies.get('google_onboarding')?.value;
   const { pathname } = req.nextUrl;
 
   const isDashboardRoute = pathname.startsWith(DASHBOARD_PATH);
   const isBillingRoute = pathname.startsWith(BILLING_PATH);
+  const isGoogleCompleteRoute = pathname.startsWith(GOOGLE_COMPLETE_PATH);
   const isAuthRoute = AUTH_PATHS.some((p) => pathname.startsWith(p));
   const isProtectedRoute = isDashboardRoute || isBillingRoute;
+
+  if (isGoogleCompleteRoute) {
+    if (onboardingToken) return NextResponse.next();
+    if (!token) return NextResponse.redirect(new URL('/auth/login', req.url));
+    const user = await getCurrentUser(token);
+    if (!user) return NextResponse.redirect(new URL('/auth/login', req.url));
+    const target = requiresBilling(user) ? '/billing' : '/dashboard';
+    return NextResponse.redirect(new URL(target, req.url));
+  }
 
   if (!token && isProtectedRoute) {
     const loginUrl = new URL('/auth/login', req.url);
@@ -60,9 +73,9 @@ export async function middleware(req: NextRequest) {
   }
 
   if (isAuthRoute) {
-    const target = requiresBilling(user) ? '/billing' : '/dashboard';
-    return NextResponse.redirect(new URL(target, req.url));
-  }
+  return NextResponse.next();
+}
+
 
   if (isDashboardRoute && requiresBilling(user)) {
     return NextResponse.redirect(new URL('/billing', req.url));
@@ -76,5 +89,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/billing/:path*', '/auth/login', '/auth/register'],
+  matcher: ['/dashboard/:path*', '/billing/:path*', '/auth/login', '/auth/register', '/auth/google-complete'],
 };

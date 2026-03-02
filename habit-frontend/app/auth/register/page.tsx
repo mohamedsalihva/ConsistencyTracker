@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { AxiosError } from "axios";
 
-import { setUser } from "@/store/authSlice";
 import api from "@/lib/axios";
 import API from "@/lib/apiRoutes";
 
@@ -21,7 +19,6 @@ type RegisterForm = {
 };
 
 export default function RegisterPage() {
-  const dispatch = useDispatch();
   const router = useRouter();
 
   const [formData, setFormData] = useState<RegisterForm>({
@@ -35,6 +32,7 @@ export default function RegisterPage() {
 
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const apiBase = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/+$/, "");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (error) setError("");
@@ -84,9 +82,8 @@ export default function RegisterPage() {
             : undefined,
       };
 
-      const res = await api.post(API.AUTH.REGISTER, payload);
-      dispatch(setUser(res.data.user));
-      router.push("/auth/login");
+      await api.post(API.AUTH.REGISTER, payload);
+      router.push("/auth/login?registered=1");
     } catch (err: unknown) {
       const apiError = err as AxiosError<{ message?: string }>;
       const message = apiError.response?.data?.message || "Registration failed. Please try again.";
@@ -94,6 +91,10 @@ export default function RegisterPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleSignup = () => {
+    window.location.href = `${apiBase}/auth/google`;
   };
 
   return (
@@ -193,6 +194,13 @@ export default function RegisterPage() {
 
             <button type="submit" disabled={isSubmitting} className="btn-cta mt-2 w-full py-2.5 disabled:opacity-60">
               {isSubmitting ? "Creating account..." : "Sign Up"}
+            </button>
+            <button
+              type="button"
+              onClick={handleGoogleSignup}
+              className="w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm font-medium text-foreground transition hover:bg-card"
+            >
+              Continue with Google
             </button>
           </form>
 

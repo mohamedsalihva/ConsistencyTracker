@@ -17,8 +17,12 @@ function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
   const handleLogin = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       const res = await api.post(API.AUTH.LOGIN, {
         email,
@@ -30,7 +34,14 @@ function LoginContent() {
       router.push(next && next.startsWith('/') ? next : '/dashboard');
     } catch {
       setError('Invalid email or password');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    if (isSubmitting) return;
+    window.location.href = `${apiBase}/auth/google`;
   };
 
   return (
@@ -64,8 +75,17 @@ function LoginContent() {
 
           {error && <p className='mt-3 text-sm text-destructive'>{error}</p>}
 
-          <button onClick={handleLogin} className='btn-cta mt-5 w-full py-2.5'>
-            Login
+          <button onClick={handleLogin} disabled={isSubmitting} className='btn-cta mt-5 w-full py-2.5 disabled:opacity-60'>
+            {isSubmitting ? 'Logging in...' : 'Login'}
+          </button>
+
+          <button
+            type='button'
+            onClick={handleGoogleLogin}
+            disabled={isSubmitting}
+            className='mt-2 w-full rounded-xl border border-border bg-card/70 px-3 py-2.5 text-sm font-medium text-foreground transition hover:bg-card disabled:opacity-60'
+          >
+            Continue with Google
           </button>
 
           <p className='mt-4 text-center text-sm text-muted-foreground'>

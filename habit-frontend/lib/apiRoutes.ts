@@ -4,6 +4,7 @@ const API = {
     REGISTER: "/auth/register",
     ME: "/auth/me",
     LOGOUT: "/auth/logout",
+    GOOGLE_COMPLETE: "/auth/google/complete",
   },
 
   HABITS: {
