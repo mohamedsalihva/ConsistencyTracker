@@ -20,6 +20,6 @@ export class UsersService {
     }
 
     updateById(id: string, data: any){
-        return this.userModel.findByIdAndUpdate(id,data,{new:true});
+        return this.userModel.findByIdAndUpdate(id, data, { returnDocument: 'after' });
     }
 }
