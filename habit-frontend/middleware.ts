@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 const DASHBOARD_PATH = '/dashboard';
 const BILLING_PATH = '/billing';
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
 const AUTH_PATHS = ['/auth/login', '/auth/register'];
 const GOOGLE_COMPLETE_PATH = '/auth/google-complete';
