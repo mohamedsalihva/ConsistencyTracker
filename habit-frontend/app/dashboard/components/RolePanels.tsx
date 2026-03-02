@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Rocket, Users } from "lucide-react";
+import { CreditCard, KeyRound, Rocket, ShieldCheck, Users } from "lucide-react";
 
 type Role = "manager" | "member";
 type SubscriptionStatus = "none" | "pending" | "active" | "failed";
@@ -41,17 +41,26 @@ export function RolePanels({
   return (
     <>
       {role === "manager" && (
-        <motion.section {...sectionMotion} className="glass-card glass-card-hover border-primary/20 p-6">
-          <div className="mb-5 flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" />
-            <h3 className="text-xl font-black text-foreground">Manager Insights</h3>
+        <motion.section
+          {...sectionMotion}
+          className="glass-card glass-card-hover overflow-hidden border-primary/25 p-0"
+        >
+          <div className="border-b border-white/10 bg-[linear-gradient(120deg,rgba(255,123,26,0.22),rgba(255,76,45,0.08))] px-5 py-4">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-primary" />
+              <h3 className="text-base font-black text-foreground sm:text-lg">Manager Insights</h3>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">Control billing, invite access, and workspace status.</p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="grid gap-3 p-4">
             {shouldShowBilling && (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3">
-                <p className="text-[10px] uppercase tracking-[0.14em] text-amber-300">Manager Billing</p>
-                <p className="mt-1 text-sm text-foreground">
+              <div className="rounded-2xl border border-amber-500/35 bg-amber-500/12 p-4">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-amber-300" />
+                  <p className="text-[10px] uppercase tracking-[0.14em] text-amber-300">Manager Billing</p>
+                </div>
+                <p className="mt-2 text-sm text-foreground">
                   {subscriptionStatus === "pending"
                     ? "Payment is pending confirmation."
                     : "Activate manager billing to unlock full workspace controls."}
@@ -59,7 +68,7 @@ export function RolePanels({
                 <button
                   onClick={onPayNow}
                   disabled={paymentLoading || !onPayNow}
-                  className="mt-3 rounded-lg border border-amber-400/35 bg-amber-500/20 px-3 py-2 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/30 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-3 rounded-xl border border-amber-400/35 bg-amber-500/20 px-3 py-2 text-xs font-semibold text-amber-100 transition hover:bg-amber-500/30 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {paymentLoading ? "Processing..." : subscriptionStatus === "failed" ? "Retry payment" : "Pay now"}
                 </button>
@@ -68,32 +77,47 @@ export function RolePanels({
             )}
 
             {isActiveManager && inviteCode && (
-              <>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#ff8b5f,#f9b57f)] text-[#1b1207]">
-                      <Rocket className="h-5 w-5" />
-                    </span>
-                    <div>
-                      <p className="text-sm font-bold text-foreground">Workspace Mentoring</p>
-                      <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Invite members with code</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#ff8b5f,#f9b57f)] text-[#1b1207]">
+                        <Rocket className="h-5 w-5" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-bold text-foreground">Workspace Mentoring</p>
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Team channel active</p>
+                      </div>
                     </div>
+                    <span className="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-bold text-primary">Live</span>
                   </div>
-                  <span className="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-bold text-primary">Live</span>
                 </div>
-              </>
+
+                <div className="rounded-2xl border border-primary/25 bg-primary/10 p-4">
+                  <div className="flex items-center gap-2">
+                    <KeyRound className="h-4 w-4 text-primary" />
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-primary/85">Workspace Invite Code</p>
+                  </div>
+                  <p className="mt-2 font-mono text-base font-bold text-primary">{inviteCode}</p>
+                  <button
+                    onClick={onCopyInvite}
+                    className="mt-3 rounded-xl border border-primary/30 bg-primary/20 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/30"
+                  >
+                    {copied ? "Copied" : "Copy code"}
+                  </button>
+                </div>
+              </div>
             )}
 
-            {isActiveManager && inviteCode && (
-              <div className="mt-4 rounded-xl border border-primary/25 bg-primary/10 p-3">
-                <p className="text-[10px] uppercase tracking-[0.14em] text-primary/85">Workspace Invite Code</p>
-                <p className="mt-1 font-mono text-base font-bold text-primary">{inviteCode}</p>
-                <button
-                  onClick={onCopyInvite}
-                  className="mt-3 rounded-lg border border-primary/30 bg-primary/20 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/30"
-                >
-                  {copied ? "Copied" : "Copy code"}
-                </button>
+            {isActiveManager && (
+              <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-3">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-emerald-300" />
+                  <p className="text-[10px] uppercase tracking-[0.14em] text-emerald-300">Workspace Access</p>
+                </div>
+                <p className="mt-1 text-sm text-foreground">
+                  {workspaceId ? "Workspace linked and protected." : "Workspace setup in progress."}
+                </p>
               </div>
             )}
           </div>

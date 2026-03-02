@@ -19,15 +19,15 @@ export function DailyChart({ chartMode, setChartMode, chartData, maxBar }: Daily
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="glass-card relative overflow-hidden p-6 sm:p-8"
+      className="glass-card relative overflow-hidden p-0"
     >
       <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-sky/10 blur-3xl" />
 
-      <div className="mb-5 flex items-center justify-between gap-2">
+      <div className="mb-4 flex items-center justify-between gap-2 border-b border-white/10 bg-[linear-gradient(120deg,rgba(255,123,26,0.18),rgba(255,76,45,0.06))] px-5 py-4">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-primary" />
           <div>
-            <p className="text-xl font-black text-foreground">Weekly Focus</p>
+            <p className="text-lg font-black text-foreground">Weekly Focus</p>
             <p className="text-xs text-muted-foreground">completion volume</p>
           </div>
         </div>
@@ -40,7 +40,7 @@ export function DailyChart({ chartMode, setChartMode, chartData, maxBar }: Daily
         </div>
       </div>
 
-      <div className="relative flex h-[150px] items-end gap-2">
+      <div className="relative flex h-[170px] items-end gap-2 px-4 pb-4">
         {chartData.map((d, i) => {
           const h = Math.max((d.count / maxBar) * 126, d.count ? 10 : 4);
           const isHovered = hoveredIdx === i;

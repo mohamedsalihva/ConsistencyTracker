@@ -15,6 +15,7 @@ type MatrixProps = {
   ) => void | Promise<void>;
   onRenameHabit: (habitId: string, title: string) => void | Promise<void>;
   onDeleteHabit: (habitId: string) => void | Promise<void>;
+  onCreateHabit: () => void;
 };
 
 const icons = [Droplets, Sparkles, Sun];
@@ -26,6 +27,7 @@ export function Matrix({
   onDeleteHabit,
   onRenameHabit,
   onToggleCheckin,
+  onCreateHabit
 }: MatrixProps) {
   return (
     <motion.section
@@ -121,8 +123,13 @@ export function Matrix({
 
         <div className="flex min-h-[188px] items-center justify-center rounded-2xl border-2 border-dashed border-white/12 bg-white/5 text-muted-foreground">
           <div className="text-center">
+            <button 
+            type="button"
+             onClick={onCreateHabit}
+                className="mt-2 w-full max-w-[160px] rounded-lg border border-white/18 px-9 py-6 text-sm font-semibold">
             <PlusCircle className="mx-auto h-7 w-7" />
             <p className="mt-2 text-sm font-semibold">Add Habit</p>
+              </button>
           </div>
         </div>
       </div>

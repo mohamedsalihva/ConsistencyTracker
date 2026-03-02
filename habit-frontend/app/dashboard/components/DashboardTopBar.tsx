@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BarChart3, Bell, ChevronDown, LayoutDashboard, ListTodo, LogOut, Plus } from "lucide-react";
+import { BarChart3, Bell, ChevronDown, Clock3, LayoutDashboard, ListTodo, LogOut, Plus } from "lucide-react";
 import type { NotificationHistoryItem } from "../hooks/useManagerInsights";
 
 type Props = {
@@ -123,26 +123,39 @@ export function DashboardTopBar({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ duration: 0.16 }}
-                  className="absolute right-0 top-[calc(100%+12px)] z-50 w-72 overflow-hidden rounded-2xl border border-white/10 bg-[#1a0f0b] shadow-[0_20px_38px_rgba(0,0,0,.35)]"
+                  className="absolute right-0 top-[calc(100%+12px)] z-50 w-80 overflow-hidden rounded-2xl border border-white/10 bg-[#1a0f0b] shadow-[0_20px_38px_rgba(0,0,0,.35)]"
                   role="menu"
                 >
-                  <div className="border-b border-white/10 bg-white/5 px-3 py-2.5">
-                    <p className="text-xs font-semibold text-foreground">Manager Alerts</p>
+                  <div className="border-b border-white/10 bg-[linear-gradient(120deg,rgba(255,123,26,0.2),rgba(255,76,45,0.06))] px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs font-semibold text-foreground">Manager Logs</p>
+                      <span className="rounded-full border border-primary/30 bg-primary/12 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                        {notifyHistory.length}
+                      </span>
+                    </div>
                   </div>
                   <div className="max-h-72 overflow-y-auto p-2">
                     {notifyLoading ? (
-                      <p className="px-2 py-3 text-xs text-muted-foreground">Loading alerts...</p>
+                      <p className="px-2 py-3 text-xs text-muted-foreground">Loading logs...</p>
                     ) : notifyHistory.length ? (
                       <div className="space-y-1">
                         {notifyHistory.slice(0, 6).map((item) => (
                           <div key={item._id} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-2">
                             <p className="text-xs font-medium text-foreground">Daily incomplete-habit alert sent</p>
-                            <p className="mt-0.5 text-[11px] text-muted-foreground">{item.dateKey}</p>
+                            <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+                              <Clock3 className="h-3 w-3" />
+                              {new Date(item.createdAt).toLocaleString(undefined, {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="px-2 py-3 text-xs text-muted-foreground">No alerts yet.</p>
+                      <p className="px-2 py-3 text-xs text-muted-foreground">No logs yet.</p>
                     )}
                   </div>
                 </motion.div>

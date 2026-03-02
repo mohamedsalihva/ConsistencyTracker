@@ -20,6 +20,7 @@ import { CoachChat } from "./components/CoachChat";
 import { DashboardTopBar } from "./components/DashboardTopBar";
 import { RolePanels } from "./components/RolePanels";
 import { WorkspaceManagerPanel } from "./components/WorkspaceManagerPanel";
+import { WorkspaceMembersPanel } from "./components/WorkspaceMembersPanel";
 import { JoinWorkspaceCard } from "./components/JoinWorkspaceCard";
 import { useBilling } from "./hooks/useBilling";
 
@@ -34,6 +35,7 @@ type DashboardUser = {
 
 export default function DashboardPage() {
   const user = useSelector((s: RootState) => s.auth.user as DashboardUser | null);
+  const isManager = user?.role === "manager";
 
   const {
     habits,
@@ -139,82 +141,139 @@ export default function DashboardPage() {
             />
           </motion.div>
 
-          <motion.div
-            variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
-            className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]"
-          >
-            <div className="flex flex-col gap-6">
-              <Matrix
-                habits={habits}
-                last35={view.last35}
-                todayKey={view.todayKey}
-                completedToday={completeToday}
-                onToggleCheckin={toggleCheckin}
-                onRenameHabit={renameHabit}
-                onDeleteHabit={deleteHabit}
-              />
-              <RingSection
-                todayPct={view.todayPct}
-                weekPct={view.weekPct}
-                monthPct={view.monthPct}
-                allPct={view.allPct}
-              />
-              <WeekStrip
-                last7={view.last7}
-                map={view.map}
-                habitsCount={habits.length}
-                todayKey={view.todayKey}
-              />
-            </div>
+          {isManager ? (
+            <motion.div
+              variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+              className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px] 2xl:grid-cols-[minmax(0,1fr)_420px]"
+            >
+              <div className="flex flex-col gap-5">
+                <RolePanels
+                  role={user?.role}
+                  subscriptionStatus={user?.subscriptionStatus}
+                  workspaceId={user?.workspaceId}
+                  inviteCode={inviteCode}
+                  copied={copied}
+                  onCopyInvite={copyInvite}
+                  onPayNow={handlePayNow}
+                  paymentError={paymentError}
+                  paymentLoading={paymentLoading}
+                />
+                <Matrix
+                  habits={habits}
+                  last35={view.last35}
+                  todayKey={view.todayKey}
+                  completedToday={completeToday}
+                  onToggleCheckin={toggleCheckin}
+                  onRenameHabit={renameHabit}
+                  onDeleteHabit={deleteHabit}
+                  onCreateHabit={openCreateModal}
+                />
+                <WeekStrip
+                  last7={view.last7}
+                  map={view.map}
+                  habitsCount={habits.length}
+                  todayKey={view.todayKey}
+                />
+                <RingSection
+                  todayPct={view.todayPct}
+                  weekPct={view.weekPct}
+                  monthPct={view.monthPct}
+                  allPct={view.allPct}
+                />
+              </div>
 
-            <div className="flex flex-col gap-6">
-              <RolePanels
-                role={user?.role}
-                subscriptionStatus={user?.subscriptionStatus}
-                workspaceId={user?.workspaceId}
-                inviteCode={inviteCode}
-                copied={copied}
-                onCopyInvite={copyInvite}
-                onPayNow={handlePayNow}
-                paymentError={paymentError}
-                paymentLoading={paymentLoading}
-              />
-
-              {user?.role === "manager" && (
+              <div className="flex flex-col gap-5">
                 <WorkspaceManagerPanel
                   workspaceName={overview?.workspaceName}
                   inviteCode={overview?.inviteCode}
                   memberCount={overview?.memberCount}
-                  members={members}
-                  loading={workspaceLoading}
-                  error={managerError}
                   actionLoading={managerActionLoading}
                   onRegenerateInvite={regenerateInvite}
                   onRemoveMember={removeMember}
                   onCopyInvite={copyInvite}
+                  showMembers={false}
                 />
-              )}
-
-              {user?.role === "member" && !user?.workspaceId && (
-                <JoinWorkspaceCard
-                  inviteCode={joinCode}
-                  setInviteCode={setJoinCode}
-                  loading={joinLoading}
-                  error={joinError}
-                  success={joinSuccess}
-                  onJoin={joinWorkspace}
+                <WorkspaceMembersPanel
+                  members={members}
+                  memberCount={overview?.memberCount}
+                  loading={workspaceLoading}
+                  error={managerError}
+                  actionLoading={managerActionLoading}
+                  onRemoveMember={removeMember}
                 />
-              )}
+                <DailyChart
+                  chartMode={chartMode}
+                  setChartMode={setChartMode}
+                  chartData={view.chartData}
+                  maxBar={view.maxBar}
+                />
+                <TopHabits topHabits={view.topHabits} />
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+              className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px] 2xl:grid-cols-[minmax(0,1fr)_420px]"
+            >
+              <div className="flex flex-col gap-5">
+                <Matrix
+                  habits={habits}
+                  last35={view.last35}
+                  todayKey={view.todayKey}
+                  completedToday={completeToday}
+                  onToggleCheckin={toggleCheckin}
+                  onRenameHabit={renameHabit}
+                  onDeleteHabit={deleteHabit}
+                  onCreateHabit={openCreateModal}
+                />
+                <WeekStrip
+                  last7={view.last7}
+                  map={view.map}
+                  habitsCount={habits.length}
+                  todayKey={view.todayKey}
+                />
+                <RingSection
+                  todayPct={view.todayPct}
+                  weekPct={view.weekPct}
+                  monthPct={view.monthPct}
+                  allPct={view.allPct}
+                />
+              </div>
 
-              <TopHabits topHabits={view.topHabits} />
-              <DailyChart
-                chartMode={chartMode}
-                setChartMode={setChartMode}
-                chartData={view.chartData}
-                maxBar={view.maxBar}
-              />
-            </div>
-          </motion.div>
+              <div className="flex flex-col gap-5">
+                <RolePanels
+                  role={user?.role}
+                  subscriptionStatus={user?.subscriptionStatus}
+                  workspaceId={user?.workspaceId}
+                  inviteCode={inviteCode}
+                  copied={copied}
+                  onCopyInvite={copyInvite}
+                  onPayNow={handlePayNow}
+                  paymentError={paymentError}
+                  paymentLoading={paymentLoading}
+                />
+
+                {user?.role === "member" && !user?.workspaceId && (
+                  <JoinWorkspaceCard
+                    inviteCode={joinCode}
+                    setInviteCode={setJoinCode}
+                    loading={joinLoading}
+                    error={joinError}
+                    success={joinSuccess}
+                    onJoin={joinWorkspace}
+                  />
+                )}
+
+                <DailyChart
+                  chartMode={chartMode}
+                  setChartMode={setChartMode}
+                  chartData={view.chartData}
+                  maxBar={view.maxBar}
+                />
+                <TopHabits topHabits={view.topHabits} />
+              </div>
+            </motion.div>
+          )}
 
           <motion.div
             variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}

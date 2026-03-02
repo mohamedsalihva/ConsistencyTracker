@@ -15,17 +15,19 @@ export function TopHabits({ topHabits }: TopHabitsProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45, duration: 0.45 }}
-      className="glass-card p-6 max-h-[535px] flex flex-col"
+      className="glass-card overflow-hidden p-0"
     >
-      <div className="mb-5 flex items-center gap-2">
-        <Medal className="h-4 w-4 text-peach" />
-        <div>
-          <p className="text-sm font-bold text-foreground">Top Habits</p>
-          <p className="text-xs text-muted-foreground">ranked by completion rate</p>
+      <div className="border-b border-white/10 bg-[linear-gradient(120deg,rgba(255,123,26,0.2),rgba(255,76,45,0.06))] px-5 py-4">
+        <div className="flex items-center gap-2">
+          <Medal className="h-4 w-4 text-peach" />
+          <div>
+            <p className="text-sm font-bold text-foreground">Top Habits</p>
+            <p className="text-xs text-muted-foreground">ranked by completion rate</p>
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-y-auto no-scrollbar pr-1">
+      <div className="flex max-h-[360px] min-h-0 flex-col gap-3 overflow-y-auto p-4 pr-3 no-scrollbar">
         {topHabits.map((habit, idx) => {
           const col = PALETTE[idx % PALETTE.length];
           const isTop = idx === 0;

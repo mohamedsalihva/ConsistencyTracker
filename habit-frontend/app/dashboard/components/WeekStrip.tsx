@@ -16,9 +16,9 @@ export function WeekStrip({ last7, map, habitsCount, todayKey }: WeekStripProps)
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.45 }}
-      className="glass-card mt-5 overflow-hidden"
+      className="glass-card overflow-hidden p-0"
     >
-      <div className="flex items-center justify-between gap-2 px-6 pb-2 pt-5">
+      <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-[linear-gradient(120deg,rgba(255,123,26,0.18),rgba(255,76,45,0.06))] px-5 py-4">
         <p className="text-sm font-bold text-foreground">This Week</p>
         <p className="text-xs text-muted-foreground">daily completion %</p>
       </div>
