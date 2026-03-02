@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: habit-backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: ./habit-frontend
+    container_name: habit-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - INTERNAL_API_URL=http://backend:5000
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
