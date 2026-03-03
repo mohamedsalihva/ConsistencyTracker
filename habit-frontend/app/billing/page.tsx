@@ -23,6 +23,10 @@ export default function BillingPage() {
   useEffect(() => {
     if (isActiveManager) {
       router.replace('/dashboard');
+      const t = window.setTimeout(() => {
+        window.location.replace('/dashboard');
+      }, 700);
+      return () => window.clearTimeout(t);
     }
   }, [isActiveManager, router]);
 
