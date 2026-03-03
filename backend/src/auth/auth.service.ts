@@ -57,7 +57,8 @@ export class AuthService {
     workspaceName?: string,
     inviteCode?: string,
   ) {
-    const existingUser = await this.userService.findByEmail(email);
+    const normalizedEmail = email.trim().toLowerCase();
+    const existingUser = await this.userService.findByEmail(normalizedEmail);
     if (existingUser) throw new BadRequestException('User already exists');
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -71,7 +72,7 @@ export class AuthService {
 
       const manager = await this.userService.create({
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         role: 'manager',
         subscriptionStatus: 'pending',
@@ -107,7 +108,7 @@ export class AuthService {
 
     const member = await this.userService.create({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       role: 'member',
       subscriptionStatus: 'none',
@@ -120,8 +121,12 @@ export class AuthService {
   }
 
   async login(email: string, password: string) {
-    const user = await this.userService.findByEmail(email);
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.userService.findByEmail(normalizedEmail);
     if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (user.authProvider === 'google') {
+      throw new UnauthorizedException('This account uses Google sign-in');
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)

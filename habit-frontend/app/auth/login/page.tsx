@@ -8,6 +8,7 @@ import API from '@/lib/apiRoutes';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import type { AxiosError } from 'axios';
 
 function LoginContent() {
   const dispatch = useDispatch();
@@ -32,8 +33,10 @@ function LoginContent() {
       dispatch(setUser(res.data.user));
       const next = searchParams.get('next');
       router.push(next && next.startsWith('/') ? next : '/dashboard');
-    } catch {
-      setError('Invalid email or password');
+    } catch (err: unknown) {
+      const apiError = err as AxiosError<{ message?: string }>;
+      const message = apiError.response?.data?.message || 'Invalid email or password';
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
