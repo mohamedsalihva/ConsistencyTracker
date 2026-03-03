@@ -28,7 +28,7 @@ export class User {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", default: null })
   managerId?: string | null;
 
-  @Prop({ type: String, default: null, unique: true, sparse: true })
+  @Prop({ type: String, default: undefined })
   googleId?: string | null;
 
   @Prop({ type: String, enum: ["local", "google"], default: "local" })
@@ -39,3 +39,10 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.index(
+  { googleId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { googleId: { $type: "string" } },
+  },
+);
