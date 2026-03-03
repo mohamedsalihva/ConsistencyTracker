@@ -89,7 +89,8 @@ export class AuthController {
 
     res.clearCookie('token', this.getCookieOptions());
     res.cookie('google_onboarding', result.onboardingToken, this.getCookieOptions(15 * 60 * 1000));
-    return res.redirect(`${frontend}/auth/google-complete`);
+    const params = new URLSearchParams({ onboardingToken: result.onboardingToken });
+    return res.redirect(`${frontend}/auth/google-complete?${params.toString()}`);
   }
 
   @Post('google/complete')
@@ -98,7 +99,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: any,
     @Body() dto: GoogleCompleteDto,
   ) {
-    const onboardingToken = req.cookies?.google_onboarding;
+    const onboardingToken = req.cookies?.google_onboarding || dto.onboardingToken;
     if (!onboardingToken)
       throw new BadRequestException('Google onboarding session expired');
 

@@ -6,6 +6,10 @@ export class  GoogleCompleteDto {
 
       @IsOptional()
       @IsString()
+      onboardingToken?: string;
+
+      @IsOptional()
+      @IsString()
       workspaceName?: string;
 
       @IsOptional()

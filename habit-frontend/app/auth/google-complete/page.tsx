@@ -13,6 +13,7 @@ import { setSessionCookieFromToken } from "@/lib/sessionCookie";
 
 type CompletePayload = {
   role: "manager" | "member";
+  onboardingToken?: string;
   workspaceName?: string;
   inviteCode?: string;
 };
@@ -36,8 +37,14 @@ export default function GoogleCompletePage() {
       return;
     }
 
+    const onboardingToken =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("onboardingToken")?.trim() || undefined
+        : undefined;
+
     const payload: CompletePayload = {
       role,
+      onboardingToken,
       workspaceName: role === "manager" ? workspaceName.trim() : undefined,
       inviteCode: role === "member" && inviteCode.trim() ? inviteCode.trim().toUpperCase() : undefined,
     };
