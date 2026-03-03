@@ -154,6 +154,9 @@ export function useDashboard() {
     } catch (error) {
       console.log(error);
     }finally{
+      try {
+        await fetch("/api/auth/session", { method: "DELETE", credentials: "include" });
+      } catch {}
       dispatch(logoutAction());
       dispatch(setHabits([]));
       router.replace("/");

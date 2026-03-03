@@ -25,9 +25,25 @@ function LoginContent() {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      const res = await api.post(API.AUTH.LOGIN, {
+      const res = await api.post<{
+        success: boolean;
+        user: unknown;
+        token?: string;
+      }>(API.AUTH.LOGIN, {
         email,
         password,
+      });
+
+      if (!res.data.token) {
+        setError("Login response missing token. Please redeploy backend.");
+        return;
+      }
+
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: res.data.token }),
+        credentials: "include",
       });
 
       dispatch(setUser(res.data.user));
