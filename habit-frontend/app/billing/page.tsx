@@ -18,12 +18,13 @@ export default function BillingPage() {
   const router = useRouter();
   const user = useSelector((s: RootState) => s.auth.user as DashboardUser | null);
   const { paymentLoading, paymentError, handlePayNow } = useBilling(user);
+  const isActiveManager = user?.role === 'manager' && user.subscriptionStatus === 'active';
 
   useEffect(() => {
-    if (user?.role === 'manager' && user.subscriptionStatus === 'active') {
+    if (isActiveManager) {
       router.replace('/dashboard');
     }
-  }, [router, user?.role, user?.subscriptionStatus]);
+  }, [isActiveManager, router]);
 
   if (!user) {
     return (
@@ -48,13 +49,17 @@ export default function BillingPage() {
           ) : (
             <div className='mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4'>
               <p className='text-xs uppercase tracking-[0.14em] text-amber-300'>Subscription status: {user.subscriptionStatus}</p>
-              <button
-                onClick={handlePayNow}
-                disabled={paymentLoading}
-                className='mt-4 rounded-lg border border-amber-400/35 bg-amber-500/20 px-4 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-500/30 disabled:cursor-not-allowed disabled:opacity-60'
-              >
-                {paymentLoading ? 'Processing...' : user.subscriptionStatus === 'failed' ? 'Retry payment' : 'Pay now'}
-              </button>
+              {isActiveManager ? (
+                <p className='mt-4 text-sm text-amber-100'>Subscription already active. Redirecting to dashboard...</p>
+              ) : (
+                <button
+                  onClick={handlePayNow}
+                  disabled={paymentLoading}
+                  className='mt-4 rounded-lg border border-amber-400/35 bg-amber-500/20 px-4 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-500/30 disabled:cursor-not-allowed disabled:opacity-60'
+                >
+                  {paymentLoading ? 'Processing...' : user.subscriptionStatus === 'failed' ? 'Retry payment' : 'Pay now'}
+                </button>
+              )}
               {paymentError && <p className='mt-3 text-sm text-red-300'>{paymentError}</p>}
             </div>
           )}
