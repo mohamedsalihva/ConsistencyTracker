@@ -53,16 +53,19 @@ export default function GoogleCompletePage() {
         token?: string;
       }>(API.AUTH.GOOGLE_COMPLETE, payload);
 
-      if (res.data?.token) {
-        setStoredToken(res.data.token);
-        setSessionCookieFromToken(res.data.token);
-        void fetch("/api/auth/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: res.data.token }),
-          credentials: "include",
-        });
+      if (!res.data?.token) {
+        setError("Google signup completed, but session token is missing. Please redeploy backend.");
+        return;
       }
+
+      setStoredToken(res.data.token);
+      setSessionCookieFromToken(res.data.token);
+      void fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: res.data.token }),
+        credentials: "include",
+      });
 
       if (res.data?.user) {
         dispatch(setUser(res.data.user));
