@@ -42,10 +42,15 @@ async function getCurrentUser(token: string): Promise<UserCheckResult> {
 }
 
 export async function proxy(req: NextRequest) {
-  const tokenCandidates = req.cookies
+  const serverTokens = req.cookies
     .getAll('token')
     .map((c) => c.value?.trim())
     .filter((v): v is string => Boolean(v));
+  const clientTokens = req.cookies
+    .getAll('token_client')
+    .map((c) => c.value?.trim())
+    .filter((v): v is string => Boolean(v));
+  const tokenCandidates = [...serverTokens, ...clientTokens];
   const token =
     tokenCandidates.find((v) => v.split('.').length === 3) ??
     tokenCandidates[0];
