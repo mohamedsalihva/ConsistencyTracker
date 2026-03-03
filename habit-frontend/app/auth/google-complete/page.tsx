@@ -9,6 +9,7 @@ import api from "@/lib/axios";
 import API from "@/lib/apiRoutes";
 import { setUser } from "@/store/authSlice";
 import { setStoredToken } from "@/lib/authToken";
+import { setSessionCookieFromToken } from "@/lib/sessionCookie";
 
 type CompletePayload = {
   role: "manager" | "member";
@@ -54,7 +55,8 @@ export default function GoogleCompletePage() {
 
       if (res.data?.token) {
         setStoredToken(res.data.token);
-        await fetch("/api/auth/session", {
+        setSessionCookieFromToken(res.data.token);
+        void fetch("/api/auth/session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token: res.data.token }),
@@ -70,6 +72,7 @@ export default function GoogleCompletePage() {
           ? "/billing"
           : "/dashboard";
       router.replace(next);
+      window.location.href = next;
     } catch (err: unknown) {
       const apiError = err as AxiosError<{ message?: string }>;
       const message = apiError.response?.data?.message || "Failed to complete account setup.";

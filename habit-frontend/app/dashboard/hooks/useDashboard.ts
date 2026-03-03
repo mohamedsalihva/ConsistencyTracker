@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { buildDashboardView } from "../utils/analytics";
 import { logout as logoutAction } from "@/store/authSlice";
 import { clearStoredToken } from "@/lib/authToken";
+import { clearSessionCookie } from "@/lib/sessionCookie";
 
 export function useDashboard() {
   const dispatch = useDispatch<AppDispatch>();
@@ -156,6 +157,7 @@ export function useDashboard() {
       console.log(error);
     }finally{
       clearStoredToken();
+      clearSessionCookie();
       try {
         await fetch("/api/auth/session", { method: "DELETE", credentials: "include" });
       } catch {}

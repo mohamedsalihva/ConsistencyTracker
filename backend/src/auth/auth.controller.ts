@@ -80,9 +80,11 @@ export class AuthController {
       const needsBilling =
         result.user?.role === 'manager' &&
         result.user?.subscriptionStatus !== 'active';
-      return res.redirect(
-        `${frontend}${needsBilling ? '/billing' : '/dashboard'}`,
-      );
+      const params = new URLSearchParams({
+        token: result.token,
+        next: needsBilling ? '/billing' : '/dashboard',
+      });
+      return res.redirect(`${frontend}/auth/google-finalize?${params.toString()}`);
     }
 
     res.clearCookie('token', this.getCookieOptions());

@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { AxiosError } from 'axios';
 import { setStoredToken } from '@/lib/authToken';
+import { setSessionCookieFromToken } from '@/lib/sessionCookie';
 
 function LoginContent() {
   const dispatch = useDispatch();
@@ -41,21 +42,20 @@ function LoginContent() {
       }
 
       setStoredToken(res.data.token);
+      setSessionCookieFromToken(res.data.token);
 
-      const sessionRes = await fetch("/api/auth/session", {
+      void fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: res.data.token }),
         credentials: "include",
       });
-      if (!sessionRes.ok) {
-        setError("Failed to create web session. Please try again.");
-        return;
-      }
 
       dispatch(setUser(res.data.user));
       const next = searchParams.get('next');
-      router.push(next && next.startsWith('/') ? next : '/dashboard');
+      const target = next && next.startsWith('/') ? next : '/dashboard';
+      router.replace(target);
+      window.location.href = target;
     } catch (err: unknown) {
       const apiError = err as AxiosError<{ message?: string }>;
       const message = apiError.response?.data?.message || 'Invalid email or password';

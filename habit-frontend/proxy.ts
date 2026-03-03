@@ -53,15 +53,7 @@ export async function proxy(req: NextRequest) {
   const isProtectedRoute = isDashboardRoute || isBillingRoute;
 
   if (isGoogleCompleteRoute) {
-    if (onboardingToken) return NextResponse.next();
-    if (!token) return NextResponse.redirect(new URL('/auth/login', req.url));
-    const result = await getCurrentUser(token);
-    if (result.status === 'unauthorized') {
-      return NextResponse.redirect(new URL('/auth/login', req.url));
-    }
-    if (result.status === 'unknown') return NextResponse.next();
-    const target = requiresBilling(result.user) ? '/billing' : '/dashboard';
-    return NextResponse.redirect(new URL(target, req.url));
+    return NextResponse.next();
   }
 
   if (!token && isProtectedRoute) {
