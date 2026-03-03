@@ -67,12 +67,16 @@ export default function GoogleCompletePage() {
 
       setStoredToken(res.data.token);
       setSessionCookieFromToken(res.data.token);
-      void fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: res.data.token }),
-        credentials: "include",
-      });
+      try {
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: res.data.token }),
+          credentials: "include",
+        });
+      } catch {
+        // Continue; fallback token storage is already set.
+      }
 
       if (res.data?.user) {
         dispatch(setUser(res.data.user));
@@ -162,4 +166,5 @@ export default function GoogleCompletePage() {
     </main>
   );
 }
+
 

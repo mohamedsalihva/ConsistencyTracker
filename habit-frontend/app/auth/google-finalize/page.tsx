@@ -22,15 +22,23 @@ function GoogleFinalizeContent() {
     setStoredToken(token);
     setSessionCookieFromToken(token);
 
-    void fetch("/api/auth/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-      credentials: "include",
-    });
+    const finalize = async () => {
+      try {
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+          credentials: "include",
+        });
+      } catch {
+        // Continue even if session sync fails; dashboard can still use local token.
+      }
 
-    router.replace(target);
-    window.location.href = target;
+      router.replace(target);
+      window.location.href = target;
+    };
+
+    void finalize();
   }, [router, searchParams]);
 
   return (
@@ -53,3 +61,4 @@ export default function GoogleFinalizePage() {
     </Suspense>
   );
 }
+

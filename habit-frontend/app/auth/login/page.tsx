@@ -30,13 +30,19 @@ function LoginContent() {
     const existingToken = getStoredToken();
     if (existingToken) {
       setSessionCookieFromToken(existingToken);
-      void fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: existingToken }),
-        credentials: 'include',
-      });
-      router.replace(next);
+      (async () => {
+        try {
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: existingToken }),
+            credentials: 'include',
+          });
+        } catch {
+          // Keep navigation working even if session sync fails.
+        }
+        router.replace(next);
+      })();
       return;
     }
 
@@ -84,12 +90,16 @@ function LoginContent() {
       setStoredToken(res.data.token);
       setSessionCookieFromToken(res.data.token);
 
-      void fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: res.data.token }),
-        credentials: "include",
-      });
+      try {
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: res.data.token }),
+          credentials: "include",
+        });
+      } catch {
+        // Keep navigation working even if session sync fails.
+      }
 
       dispatch(setUser(res.data.user));
       const target = next && next.startsWith('/') ? next : '/dashboard';
@@ -178,3 +188,4 @@ export default function LoginPage() {
     </Suspense>
   );
 }
+
