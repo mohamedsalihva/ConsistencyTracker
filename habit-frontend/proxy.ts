@@ -42,7 +42,13 @@ async function getCurrentUser(token: string): Promise<UserCheckResult> {
 }
 
 export async function proxy(req: NextRequest) {
-  const token = req.cookies.get('token')?.value;
+  const tokenCandidates = req.cookies
+    .getAll('token')
+    .map((c) => c.value?.trim())
+    .filter((v): v is string => Boolean(v));
+  const token =
+    tokenCandidates.find((v) => v.split('.').length === 3) ??
+    tokenCandidates[0];
   const { pathname } = req.nextUrl;
 
   const isDashboardRoute = pathname.startsWith(DASHBOARD_PATH);
@@ -65,7 +71,20 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const result = await getCurrentUser(token);
+  let result = await getCurrentUser(token);
+  if (
+    result.status === 'unauthorized' &&
+    tokenCandidates.length > 1
+  ) {
+    for (const candidate of tokenCandidates) {
+      if (candidate === token) continue;
+      const candidateResult = await getCurrentUser(candidate);
+      if (candidateResult.status === 'authorized' || candidateResult.status === 'unknown') {
+        result = candidateResult;
+        break;
+      }
+    }
+  }
   if (result.status === 'unauthorized' && isProtectedRoute) {
     const loginUrl = new URL('/auth/login', req.url);
     loginUrl.searchParams.set('next', pathname);
