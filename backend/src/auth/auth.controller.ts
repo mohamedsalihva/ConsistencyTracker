@@ -108,7 +108,7 @@ export class AuthController {
     res.clearCookie('google_onboarding', this.getCookieOptions());
     res.cookie('token', data.token, this.getCookieOptions(7 * 24 * 60 * 60 * 1000));
 
-    return { success: true, user: data.user };
+    return { success: true, user: data.user, token: data.token };
   }
 }
 

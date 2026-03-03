@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { AxiosError } from 'axios';
+import { setStoredToken } from '@/lib/authToken';
 
 function LoginContent() {
   const dispatch = useDispatch();
@@ -39,12 +40,18 @@ function LoginContent() {
         return;
       }
 
-      await fetch("/api/auth/session", {
+      setStoredToken(res.data.token);
+
+      const sessionRes = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: res.data.token }),
         credentials: "include",
       });
+      if (!sessionRes.ok) {
+        setError("Failed to create web session. Please try again.");
+        return;
+      }
 
       dispatch(setUser(res.data.user));
       const next = searchParams.get('next');

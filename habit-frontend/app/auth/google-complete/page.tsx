@@ -8,6 +8,7 @@ import type { AxiosError } from "axios";
 import api from "@/lib/axios";
 import API from "@/lib/apiRoutes";
 import { setUser } from "@/store/authSlice";
+import { setStoredToken } from "@/lib/authToken";
 
 type CompletePayload = {
   role: "manager" | "member";
@@ -42,7 +43,25 @@ export default function GoogleCompletePage() {
 
     setLoading(true);
     try {
-      const res = await api.post(API.AUTH.GOOGLE_COMPLETE, payload);
+      const res = await api.post<{
+        success: boolean;
+        user?: {
+          role?: "manager" | "member";
+          subscriptionStatus?: "none" | "pending" | "active" | "failed";
+        };
+        token?: string;
+      }>(API.AUTH.GOOGLE_COMPLETE, payload);
+
+      if (res.data?.token) {
+        setStoredToken(res.data.token);
+        await fetch("/api/auth/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: res.data.token }),
+          credentials: "include",
+        });
+      }
+
       if (res.data?.user) {
         dispatch(setUser(res.data.user));
       }
