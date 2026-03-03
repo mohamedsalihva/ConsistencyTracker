@@ -43,7 +43,6 @@ async function getCurrentUser(token: string): Promise<UserCheckResult> {
 
 export async function proxy(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
-  const onboardingToken = req.cookies.get('google_onboarding')?.value;
   const { pathname } = req.nextUrl;
 
   const isDashboardRoute = pathname.startsWith(DASHBOARD_PATH);
@@ -77,8 +76,12 @@ export async function proxy(req: NextRequest) {
   }
 
   if (isAuthRoute) {
-  return NextResponse.next();
-}
+    if (result.status === 'authorized') {
+      const target = requiresBilling(result.user) ? '/billing' : '/dashboard';
+      return NextResponse.redirect(new URL(target, req.url));
+    }
+    return NextResponse.next();
+  }
 
 
   if (result.status === 'authorized' && isDashboardRoute && requiresBilling(result.user)) {
