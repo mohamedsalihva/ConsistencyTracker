@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { setUser } from '@/store/authSlice';
 import { useDispatch } from 'react-redux';
 import api from '@/lib/axios';
@@ -9,7 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { AxiosError } from 'axios';
-import { setStoredToken } from '@/lib/authToken';
+import { getStoredToken, setStoredToken } from '@/lib/authToken';
 import { setSessionCookieFromToken } from '@/lib/sessionCookie';
 
 function LoginContent() {
@@ -22,6 +22,46 @@ function LoginContent() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+  const next = searchParams.get('next');
+
+  useEffect(() => {
+    if (!next || !next.startsWith('/')) return;
+
+    const existingToken = getStoredToken();
+    if (existingToken) {
+      setSessionCookieFromToken(existingToken);
+      void fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: existingToken }),
+        credentials: 'include',
+      });
+      router.replace(next);
+      return;
+    }
+
+    let active = true;
+    (async () => {
+      try {
+        const res = await api.get<{
+          user?: { role?: 'manager' | 'member'; subscriptionStatus?: 'none' | 'pending' | 'active' | 'failed' };
+        }>(API.AUTH.ME);
+        if (!active || !res.data?.user) return;
+        dispatch(setUser(res.data.user));
+        const target =
+          res.data.user.role === 'manager' && res.data.user.subscriptionStatus !== 'active'
+            ? '/billing'
+            : next;
+        router.replace(target);
+      } catch {
+        // Not logged in yet.
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [dispatch, next, router]);
 
   const handleLogin = async () => {
     if (isSubmitting) return;
@@ -52,7 +92,6 @@ function LoginContent() {
       });
 
       dispatch(setUser(res.data.user));
-      const next = searchParams.get('next');
       const target = next && next.startsWith('/') ? next : '/dashboard';
       router.replace(target);
       window.location.href = target;
