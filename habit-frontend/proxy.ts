@@ -13,25 +13,31 @@ type AuthUser = {
   subscriptionStatus?: 'none' | 'pending' | 'active' | 'failed';
 };
 
+type UserCheckResult =
+  | { status: 'authorized'; user: AuthUser | null }
+  | { status: 'unauthorized' }
+  | { status: 'unknown' };
+
 function requiresBilling(user: AuthUser | null) {
   return user?.role === 'manager' && user.subscriptionStatus !== 'active';
 }
 
-async function getCurrentUser(token: string): Promise<AuthUser | null> {
+async function getCurrentUser(token: string): Promise<UserCheckResult> {
   try {
     const res = await fetch(`${API_BASE}/auth/me`, {
       method: 'GET',
       headers: {
-        cookie: `token=${token}`,
+        authorization: `Bearer ${token}`,
       },
       cache: 'no-store',
     });
 
-    if (!res.ok) return null;
+    if (res.status === 401 || res.status === 403) return { status: 'unauthorized' };
+    if (!res.ok) return { status: 'unknown' };
     const data = (await res.json()) as { user?: AuthUser };
-    return data.user ?? null;
+    return { status: 'authorized', user: data.user ?? null };
   } catch {
-    return null;
+    return { status: 'unknown' };
   }
 }
 
@@ -49,9 +55,12 @@ export async function proxy(req: NextRequest) {
   if (isGoogleCompleteRoute) {
     if (onboardingToken) return NextResponse.next();
     if (!token) return NextResponse.redirect(new URL('/auth/login', req.url));
-    const user = await getCurrentUser(token);
-    if (!user) return NextResponse.redirect(new URL('/auth/login', req.url));
-    const target = requiresBilling(user) ? '/billing' : '/dashboard';
+    const result = await getCurrentUser(token);
+    if (result.status === 'unauthorized') {
+      return NextResponse.redirect(new URL('/auth/login', req.url));
+    }
+    if (result.status === 'unknown') return NextResponse.next();
+    const target = requiresBilling(result.user) ? '/billing' : '/dashboard';
     return NextResponse.redirect(new URL(target, req.url));
   }
 
@@ -65,11 +74,14 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const user = await getCurrentUser(token);
-  if (!user && isProtectedRoute) {
+  const result = await getCurrentUser(token);
+  if (result.status === 'unauthorized' && isProtectedRoute) {
     const loginUrl = new URL('/auth/login', req.url);
     loginUrl.searchParams.set('next', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+  if (result.status === 'unknown' && isProtectedRoute) {
+    return NextResponse.next();
   }
 
   if (isAuthRoute) {
@@ -77,11 +89,11 @@ export async function proxy(req: NextRequest) {
 }
 
 
-  if (isDashboardRoute && requiresBilling(user)) {
+  if (result.status === 'authorized' && isDashboardRoute && requiresBilling(result.user)) {
     return NextResponse.redirect(new URL('/billing', req.url));
   }
 
-  if (isBillingRoute && !requiresBilling(user)) {
+  if (result.status === 'authorized' && isBillingRoute && !requiresBilling(result.user)) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
