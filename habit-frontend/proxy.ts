@@ -76,10 +76,6 @@ export async function proxy(req: NextRequest) {
   }
 
   if (isAuthRoute) {
-    if (result.status === 'authorized') {
-      const target = requiresBilling(result.user) ? '/billing' : '/dashboard';
-      return NextResponse.redirect(new URL(target, req.url));
-    }
     return NextResponse.next();
   }
 
