@@ -35,7 +35,7 @@ async function getCurrentUser(token: string): Promise<AuthUser | null> {
   }
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
   const onboardingToken = req.cookies.get('google_onboarding')?.value;
   const { pathname } = req.nextUrl;
