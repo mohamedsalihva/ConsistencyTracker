@@ -16,6 +16,15 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
+  // Explicit health routes for uptime monitors, including free-tier HEAD checks.
+  const server = app.getHttpAdapter().getInstance();
+  server.get('/health', (_req: any, res: any) => {
+    res.status(200).json({ status: 'ok' });
+  });
+  server.head('/health', (_req: any, res: any) => {
+    res.sendStatus(200);
+  });
+
   await app.listen(process.env.PORT ?? 5000);
 }
 bootstrap();
