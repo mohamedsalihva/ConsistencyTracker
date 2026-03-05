@@ -31,11 +31,13 @@ function GoogleFinalizeContent() {
           credentials: "include",
         });
       } catch {
-        // Continue even if session sync fails; dashboard can still use local token.
+        // Continue even if session sync fails; proxy fallback can consume token once.
       }
 
-      router.replace(target);
-      window.location.href = target;
+      const separator = target.includes("?") ? "&" : "?";
+      const targetWithToken = `${target}${separator}token=${encodeURIComponent(token)}`;
+      router.replace(targetWithToken);
+      window.location.href = targetWithToken;
     };
 
     void finalize();
@@ -61,4 +63,3 @@ export default function GoogleFinalizePage() {
     </Suspense>
   );
 }
-

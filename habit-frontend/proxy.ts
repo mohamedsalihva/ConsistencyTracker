@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 const DASHBOARD_PATH = '/dashboard';
 const BILLING_PATH = '/billing';
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
+const WEEK_IN_SECONDS = 7 * 24 * 60 * 60;
 
 const AUTH_PATHS = ['/auth/login', '/auth/register'];
 const GOOGLE_COMPLETE_PATH = '/auth/google-complete';
@@ -20,6 +21,32 @@ type UserCheckResult =
 
 function requiresBilling(user: AuthUser | null) {
   return user?.role === 'manager' && user.subscriptionStatus !== 'active';
+}
+
+function isJwtLike(value?: string | null) {
+  if (!value) return false;
+  return value.split('.').length === 3;
+}
+
+function setSessionCookies(res: NextResponse, token: string, req: NextRequest) {
+  const isProd = process.env.NODE_ENV === 'production';
+  const secure = isProd || req.nextUrl.protocol === 'https:';
+
+  res.cookies.set('token', token, {
+    httpOnly: true,
+    sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
+    secure,
+    path: '/',
+    maxAge: WEEK_IN_SECONDS,
+  });
+
+  res.cookies.set('token_client', token, {
+    httpOnly: false,
+    sameSite: 'lax',
+    secure,
+    path: '/',
+    maxAge: WEEK_IN_SECONDS,
+  });
 }
 
 async function getCurrentUser(token: string): Promise<UserCheckResult> {
@@ -50,9 +77,10 @@ export async function proxy(req: NextRequest) {
     .getAll('token_client')
     .map((c) => c.value?.trim())
     .filter((v): v is string => Boolean(v));
-  const tokenCandidates = [...serverTokens, ...clientTokens];
+  const urlToken = req.nextUrl.searchParams.get('token')?.trim() || '';
+  const tokenCandidates = [...serverTokens, ...clientTokens, ...(urlToken ? [urlToken] : [])];
   const token =
-    tokenCandidates.find((v) => v.split('.').length === 3) ??
+    tokenCandidates.find((v) => isJwtLike(v)) ??
     tokenCandidates[0];
   const { pathname } = req.nextUrl;
 
@@ -90,6 +118,15 @@ export async function proxy(req: NextRequest) {
       }
     }
   }
+
+  if (urlToken && isJwtLike(urlToken) && (result.status === 'authorized' || result.status === 'unknown')) {
+    const cleanUrl = new URL(req.url);
+    cleanUrl.searchParams.delete('token');
+    const response = NextResponse.redirect(cleanUrl);
+    setSessionCookies(response, urlToken, req);
+    return response;
+  }
+
   if (result.status === 'unauthorized' && isProtectedRoute) {
     const loginUrl = new URL('/auth/login', req.url);
     loginUrl.searchParams.set('next', pathname);
