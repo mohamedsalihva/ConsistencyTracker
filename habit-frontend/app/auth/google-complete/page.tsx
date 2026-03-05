@@ -75,7 +75,7 @@ export default function GoogleCompletePage() {
           credentials: "include",
         });
       } catch {
-        // Continue; fallback token storage is already set.
+        // Continue; proxy fallback can consume token once.
       }
 
       if (res.data?.user) {
@@ -85,8 +85,10 @@ export default function GoogleCompletePage() {
         res.data?.user?.role === "manager" && res.data?.user?.subscriptionStatus !== "active"
           ? "/billing"
           : "/dashboard";
-      router.replace(next);
-      window.location.href = next;
+      const separator = next.includes("?") ? "&" : "?";
+      const nextWithToken = `${next}${separator}token=${encodeURIComponent(res.data.token)}`;
+      router.replace(nextWithToken);
+      window.location.href = nextWithToken;
     } catch (err: unknown) {
       const apiError = err as AxiosError<{ message?: string }>;
       const message = apiError.response?.data?.message || "Failed to complete account setup.";
@@ -166,5 +168,3 @@ export default function GoogleCompletePage() {
     </main>
   );
 }
-
-
